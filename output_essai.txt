@@ -1,0 +1,171 @@
+
+ check parameters 4.544863 2.860373
+ check parameters 2 4.544863 13.000000
+l= 1.000000,facteur = 4.544863,longueur moyenne des branches = 1.000000
+
+ (5:1.1635,(7:0.8774,(3:0.9875,6:0.6692):0.6891):0.8830,(1:1.2071,(2:0.9483,(4:0.8152,8:1.6511):1.0249):0.7798):1.3039); 
+
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ DISS 0.000000	 NomsDISS 
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.656700	 NomsDISS 6
+ DISS 2.554000	 NomsDISS 7
+ DISS 6.483400	 NomsDISS 4
+ DISS 7.319300	 NomsDISS 8
+ DISS 5.591600	 NomsDISS 2
+ DISS 5.070600	 NomsDISS 1
+ DISS 3.723100	 NomsDISS 5
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ DISS 0.000000	 NomsDISS ‡Ã.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.656700	 NomsDISS 6
+ DISS 2.554000	 NomsDISS 7
+ DISS 6.483400	 NomsDISS 4
+ DISS 7.319300	 NomsDISS 8
+ DISS 5.591600	 NomsDISS 2
+ DISS 5.070600	 NomsDISS 1
+ DISS 3.723100	 NomsDISS 5
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ DISS 0.000000	 NomsDISS ~Øc^
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.656700	 NomsDISS 6
+ DISS 2.554000	 NomsDISS 7
+ DISS 6.483400	 NomsDISS 4
+ DISS 7.319300	 NomsDISS 8
+ DISS 5.591600	 NomsDISS 2
+ DISS 5.070600	 NomsDISS 1
+ DISS 3.723100	 NomsDISS 5
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ DISS 0.000000	 NomsDISS ‡Ã.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.656700	 NomsDISS 6
+ DISS 2.554000	 NomsDISS 7
+ DISS 6.483400	 NomsDISS 4
+ DISS 7.319300	 NomsDISS 8
+ DISS 5.591600	 NomsDISS 2
+ DISS 5.070600	 NomsDISS 1
+ DISS 3.723100	 NomsDISS 5
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ DISS 0.000000	 NomsDISS ‡Ã.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.656700	 NomsDISS 6
+ DISS 2.554000	 NomsDISS 7
+ DISS 6.483400	 NomsDISS 4
+ DISS 7.319300	 NomsDISS 8
+ DISS 5.591600	 NomsDISS 2
+ DISS 5.070600	 NomsDISS 1
+ DISS 3.723100	 NomsDISS 5
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ what the heck ? matrices.txt	 name species are :3	 name species are :6	 name species are :7	 name species are :4	 name species are :8	 name species are :2	 name species are :1	 name species are :5
+ DISS 0.000000	 NomsDISS ‡Ã.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.656700	 NomsDISS 6
+ DISS 2.554000	 NomsDISS 7
+ DISS 6.483400	 NomsDISS 4
+ DISS 7.319300	 NomsDISS 8
+ DISS 5.591600	 NomsDISS 2
+ DISS 5.070600	 NomsDISS 1
+ DISS 3.723100	 NomsDISS 5
+ okay donc les r√©sultats sont : Quota0=6; Quota10=0; Quota25=0; Quota50=0; Quota75=0; QuotaMax=6
+ check parameters 3.162601 4.110540
+ check parameters 2 3.162601 13.000000
+l= 1.000000,facteur = 3.162601,longueur moyenne des branches = 1.000000
+
+ (4:1.4941,(5:1.3898,(3:0.6349,7:1.0622):0.4978):0.4489,(6:0.4768,(2:0.4899,(1:1.0174,8:0.7842):1.0982):1.1923):2.4134); 
+
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ DISS 0.000000	 NomsDISS ‡Ã.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.697100	 NomsDISS 7
+ DISS 2.522500	 NomsDISS 5
+ DISS 7.302900	 NomsDISS 1
+ DISS 7.069700	 NomsDISS 8
+ DISS 5.677200	 NomsDISS 2
+ DISS 4.471800	 NomsDISS 6
+ DISS 3.075700	 NomsDISS 4
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ DISS 0.000000	 NomsDISS ‡Ã.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.697100	 NomsDISS 7
+ DISS 2.522500	 NomsDISS 5
+ DISS 7.302900	 NomsDISS 1
+ DISS 7.069700	 NomsDISS 8
+ DISS 5.677200	 NomsDISS 2
+ DISS 4.471800	 NomsDISS 6
+ DISS 3.075700	 NomsDISS 4
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ DISS 0.000000	 NomsDISS ‡Ã.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.697100	 NomsDISS 7
+ DISS 2.522500	 NomsDISS 5
+ DISS 7.302900	 NomsDISS 1
+ DISS 7.069700	 NomsDISS 8
+ DISS 5.677200	 NomsDISS 2
+ DISS 4.471800	 NomsDISS 6
+ DISS 3.075700	 NomsDISS 4
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ DISS 0.000000	 NomsDISS ‡Ã.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.697100	 NomsDISS 7
+ DISS 2.522500	 NomsDISS 5
+ DISS 7.302900	 NomsDISS 1
+ DISS 7.069700	 NomsDISS 8
+ DISS 5.677200	 NomsDISS 2
+ DISS 4.471800	 NomsDISS 6
+ DISS 3.075700	 NomsDISS 4
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ DISS 0.000000	 NomsDISS ‡Ã.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.697100	 NomsDISS 7
+ DISS 2.522500	 NomsDISS 5
+ DISS 7.302900	 NomsDISS 1
+ DISS 7.069700	 NomsDISS 8
+ DISS 5.677200	 NomsDISS 2
+ DISS 4.471800	 NomsDISS 6
+ DISS 3.075700	 NomsDISS 4
+
+
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ what the heck ? matrices.txt	 name species are :3	 name species are :7	 name species are :5	 name species are :1	 name species are :8	 name species are :2	 name species are :6	 name species are :4
+ DISS 0.000000	 NomsDISS  Õ.5µ
+ DISS 0.000000	 NomsDISS 3
+ DISS 1.697100	 NomsDISS 7
+ DISS 2.522500	 NomsDISS 5
+ DISS 7.302900	 NomsDISS 1
+ DISS 7.069700	 NomsDISS 8
+ DISS 5.677200	 NomsDISS 2
+ DISS 4.471800	 NomsDISS 6
+ DISS 3.075700	 NomsDISS 4
+ okay donc les r√©sultats sont : Quota0=6; Quota10=0; Quota25=0; Quota50=0; Quota75=0; QuotaMax=6
