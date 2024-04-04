@@ -418,7 +418,7 @@ void loadAdjacenceMatrix( double **Adjacence, long int *ARETE, double *LONGUEUR,
 	for(i=1;i<=2*size-2;i++) /*/(n+1)*/
 		for(j=1;j<=2*size-2;j++){
 			Adjacence[i][j] = Adjacence[j][i] = INFINI;
-}
+		}
 	for(i=1;i<=2*size-3-kt;i++){
 		Adjacence[ARETE[2*i-2]][ARETE[2*i-1]] = LONGUEUR[i-1];//(LONGUEUR[i-1]>5*epsilon)?LONGUEUR[i-1]:5*epsilon;
 		Adjacence[ARETE[2*i-1]][ARETE[2*i-2]] = LONGUEUR[i-1]; //(LONGUEUR[i-1]>5*epsilon)?LONGUEUR[i-1]:5*epsilon;
@@ -638,17 +638,17 @@ int Tree_edges (double **DI, long int *ARETE, double *LONGUEUR, int n,int binair
 //==============================================================
 int Bipartition_Table (double **D, int **B, int *PLACE, int n)
 {
-	int i,j,k,l,l1,*MaxCol,*X,EdgeNumberPath,m,uv,PlaceNumber,edge,*Path,M,F;
-	double S,DIS,DIS1,*LengthPath;
+	int i, j, k, l, l1, *MaxCol, *X,EdgeNumberPath, m, uv, PlaceNumber, edge, *Path, M, F;
+	double S, DIS, DIS1, *LengthPath;
 	double EPS = 1.e-5;
 	double EPS1 = 1.e-2;
 
 	/* Memory allocation */
 
-	MaxCol = (int *)malloc((2*n)*sizeof(int));
-	X = (int *)malloc((2*n+1)*sizeof(int));
-	LengthPath = (double *)malloc((2*n)*sizeof(double));
-	Path = (int *)malloc((2*n)*sizeof(int));
+	MaxCol = (int *)malloc((2*n-2)*sizeof(int));
+	X = (int *)malloc((n+1)*sizeof(int));
+	LengthPath = (double *)malloc((2*n-2)*sizeof(double));
+	Path = (int *)malloc((2*n-2)*sizeof(int));
 
 	/* Computation of a circular order X for D */     
 
@@ -848,11 +848,24 @@ int Table_Comparaison (int **B, int ** B1, int *PLACE, int *PLACE1, int m, int m
 	p = 1;
 	p1 = 1;
 
+	/*for(int k=1; k<=m; k++){
+		for(int l=1; l<=n; l++){printf("%d \t", B[PLACE[k]][l]);}
+		printf("\n");
+	}
+	printf("\nDeuxième matrice\n");
+
+	for(int k=1; k<=m1; k++){
+		for(int l=1; l<=n; l++){printf("%d \t", B1[PLACE1[k]][l]);}
+		printf("\n");
+	}*/
+
 	while ((p<=m) && (p1<=m1))
 	{
 		i = n;
-		while ((B[PLACE[p]][i]==B1[PLACE1[p1]][i])&&(i>1))
-		{ i--; }
+		while ((B[PLACE[p]][i] == B1[PLACE1[p1]][i]) && (i>1))
+		{
+			i--;
+		}
 
 		if (i==1)
 		{
@@ -864,8 +877,9 @@ int Table_Comparaison (int **B, int ** B1, int *PLACE, int *PLACE1, int m, int m
 
 		else { p++; } 
 	}
-
+	//printf("\t RF vaut %d", RF);
 	RF = (m-RF)+(m1-RF);
+	//printf("\t dans tables comparaison RF vaut %d, et les autres valeurs m %d et m1 %d", RF, m, m1);
 
 	return RF;
 }
@@ -2080,7 +2094,7 @@ int lectureNewick_old(string newick, long int * ARETE, double * LONGUEUR, char *
 		tableau[ARETE[2*i-1]]++;
 		tableau[ARETE[2*i-2]]++;
 	}
-//	printf("\n");
+	//	printf("\n");
 	i=n+1;
 	while((tableau[i] > 0) && ((i+1)<(2*n))){
 		//printf("\n%d-->%d",i,tableau[i]);
@@ -2405,13 +2419,15 @@ void filtrerMatrice(double **dissSpecies, double **dissGene, char **nomsSpecies,
 
 //== write the matrix in the output file
 int ecrireMatrice(double **mat,const char *outfile,int taille,char **noms){
-	int i,j,finalTaille;
+	int i, j, finalTaille;
 	FILE *out;
 	
-	finalTaille=0;
-	for(i=1;i<=taille;i++)
-		if(strcmp(noms[i],"")!=0)
-			finalTaille = finalTaille+1;
+	finalTaille = 0;
+
+	for(i = 1; i <= taille; i++)
+	{	if(strcmp(noms[i],"")!=0)
+			{ finalTaille = finalTaille+1; }
+	}	
 	if(finalTaille < 3){
 		return -1;
 	}
@@ -2434,6 +2450,39 @@ int ecrireMatrice(double **mat,const char *outfile,int taille,char **noms){
 		fclose(out);
 	}
 	return finalTaille;
+ /*	int i, j, k, a;
+	fprintf(outfile, "%d", taille);
+	a++;
+	if (a > SEUIL) {
+		fclose(outfile);
+		exit(-1);
+	}
+	for (i = 1; i <= taille i++) {
+		fprintf(outfile, "\n%s", noms[i - 1]);
+		a++;
+		if (a > SEUIL) {
+			fclose(outfile);
+			exit(-1);
+		}
+		int mk = (10 - strlen(noms[i - 1]));
+		if (mk > 0)
+			for (k = 0; k <= mk; k++) {
+				fprintf(outfile, " ");
+				a++;
+				if (a > SEUIL) {
+					fclose(outfile);
+					exit(-1);
+				}
+			}
+		for (j = 1; j <= taille; j++) {
+			fprintf(outfile, "%lf ", amt[i][j]);
+			a++;
+			if (a > SEUIL) {
+				fclose(outfile);
+				exit(-1);
+			}
+		}
+	}*/
 }
 
 //== add the gene matrix to the input file
@@ -2450,6 +2499,7 @@ void ajouterMatriceGene(double **mat,const char *outfile,int taille,char **noms)
 		for(i=1;i<=taille;i++){
 			if(strcmp(noms[i],"") != 0){  //if(strlen(noms[i]) > 1){
 				fprintf(out,"\n%s",noms[i]);
+				//printf("\nAJOUTMATRICE%s",noms[i]);
 				for(j=1;j<=taille;j++)
 					if(mat[i][j] != -1)
 						fprintf(out," %lf",mat[i][j]);
@@ -2468,7 +2518,7 @@ void ajouterMatriceGene(double **mat,const char *outfile,int taille,char **noms)
 *************************************************************************/
 void TrierMatrices(double **DISS,char **NomsDISS,char **NomsADD,int n)
 {
-	int trouve, ligne,colonne,i,j;
+	int trouve, ligne, colonne, i, j;
 	double ** DISS_;
 	char   ** NomsDISS_;
 	char noms[50];
@@ -2481,10 +2531,9 @@ void TrierMatrices(double **DISS,char **NomsDISS,char **NomsADD,int n)
 	for(i = 0; i <= n; i++)
 	{
 		DISS_[i]=(double*)malloc((n+1)*sizeof(double));
-
+		NomsDISS_[i] = (char*) malloc((n+1)*sizeof(15));
 		//printf("\n DISS %f", DISS[i][1]);
 		//printf("\t NomsDISS %s", NomsDISS[i]);
-		NomsDISS_[i] = (char*) malloc((n+1)*sizeof(15));
 	}
 
 	for(ligne = 1; ligne <= n; ligne++)
@@ -2492,7 +2541,7 @@ void TrierMatrices(double **DISS,char **NomsDISS,char **NomsADD,int n)
 		strcpy(noms,NomsADD[ligne]);
 		trouve = 0;
 
-		for(colonne = 1;colonne<=n;colonne++)
+		for(colonne = 1; colonne<=n; colonne++)
 		{
 			if(strcmp(noms,NomsDISS[colonne])==0)
 			{

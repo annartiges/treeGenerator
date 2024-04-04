@@ -22,7 +22,7 @@ using namespace std;
 double MaxLong = 0;
 double MinLong = INFINI;
 double seuil;
-double epsilona = 0.00005;
+double epsilona = 0.0005;
 int n;
 string myreplace(string &s, string toReplace,string replaceWith);
 string intToString(int i);
@@ -730,18 +730,19 @@ string myreplace(string &s, string toReplace,string replaceWith){
     return(s.replace(s.find(toReplace), toReplace.length(), replaceWith));
 }
 
-void createSubstituteTrees2(string treeRef)
+void createSubstituteTrees2(string treeRef, int nSpecies)
 {
-	int nbSpecies = 8;
+	int nbSpecies = nSpecies;
 	double distMax = 2*nbSpecies-6;
 	double dix = 0.10, vingtCinq = 0.25, cinquante = 0.50, soixanteQuinze = 0.75;
 	int quota0 = 0, quota10 = 0, quota25 = 0, quota50 = 0, quota75 = 0, quotaMax = 0;
 	int nbEspPart = 9;
 	double pLeavesAbsent = 0.25;
-	double *mat_distances = new double[5];
+	double *mat_distances = new double[4];
 	double distancesRF;
 	double nbEspSupp = (double(nbSpecies)*double(pLeavesAbsent))/100.0;
 	nbEspSupp = ceil(nbEspSupp);
+	//printf("\t ######## JUst to check nbEspSupp %lf", nbEspSupp);
 
 
 	string espece1, espece11, espece12;
@@ -759,7 +760,9 @@ void createSubstituteTrees2(string treeRef)
 	int start_pos1;
 	int start_pos2;
 
-	for (int i = 1; i < nbSpecies; i++){
+	for (int i = 1; i < nbSpecies; i++)
+	{
+		distancesRF = 0;
 								
 									//Pour savoir si les quotas ne sont pas complétés
 		if(quota0 <= nbEspPart || quota10 <= nbEspPart || quota25 <= nbEspPart || quota50 <= nbEspPart || quota75 <= nbEspPart)
@@ -781,18 +784,18 @@ void createSubstituteTrees2(string treeRef)
 															
 			for (int j = (i+1); j <= nbSpecies; j++)
 			{
+				distancesRF = 0;
 				//printf("\n normalement on rentre ici");
 				if(quota0 <= nbEspPart || quota10 <= nbEspPart || quota25 <= nbEspPart || quota50 <= nbEspPart || quota75 <= nbEspPart)
 				{
 					newTree = treeRef;
-					//printf("\n on rentre ici aussi");
 					string filling = "XXXXXX";
 					newTree = myreplace(newTree, trueSpecie1 ,filling);
 					espece2 = intToString(j);				
 					trueSpecie2 = trueSpecie1[0] + espece2 + ":";
 					fakeSpecie2 = fakeSpecie1[0] + espece2 + ":";
 
-					printf("\n %s %s", trueSpecie1.c_str(), trueSpecie2.c_str());
+					//printf("\n %s %s", trueSpecie1.c_str(), trueSpecie2.c_str());
 													
 					start_pos2 = newTree.find(trueSpecie2);
 					int treeSize = newTree.length();
@@ -800,16 +803,17 @@ void createSubstituteTrees2(string treeRef)
 					if(start_pos2 <= treeSize && start_pos2 >=0){
 						newTree = myreplace(newTree, trueSpecie2 ,trueSpecie1);
 					}
-					else if (start_pos2 <0)
+					else if (start_pos2 < 0)
 					{
 						newTree = myreplace(newTree, fakeSpecie2 ,fakeSpecie1);
 					}
 					
 					newTree = myreplace(newTree, filling ,trueSpecie2);
-					printf("\n %s", newTree.c_str());
+					//printf("\n %s", newTree.c_str());
+					//printf("\n %s", treeRef.c_str());
 					main_hgt(treeRef, newTree, mat_distances);
 					distancesRF = mat_distances[0];
-					printf(" \ndistances %f", distancesRF);
+					//printf(" \nRF de type %s", typeid(distancesRF).name());
 					if(distancesRF==0){
 						distancesRF = 0.0;
 					}
@@ -866,19 +870,19 @@ void createSubstituteTrees2(string treeRef)
 			}
 		}					
 	}
-
+	//printf("okay à la base c'était ça l'arbre \n\n %s \n\n", treeRef.c_str());
 	printf("\n okay donc les résultats sont : Quota0=%d; Quota10=%d; Quota25=%d; Quota50=%d; Quota75=%d; QuotaMax=%d", quota0, quota10, quota25, quota50, quota75, quotaMax);
 }
 
 int main()
 {
-	int nbArbres = 0, nbSpecies = 4;
+	int nbArbres = 0, nbSpecies = 8;
 	string refTree;
 	string mario = "MArio !";
 
-	for(int i = 0; i <= 1; i++) {
-		createTree2(8, .5, "something", refTree);
-		createSubstituteTrees2(refTree);
+	for(int i = 1; i <= 1; i++) {
+		createTree2(nbSpecies, 0.5, "something", refTree);
+		createSubstituteTrees2(refTree, nbSpecies);
 	}
 	printf("\n");
 }

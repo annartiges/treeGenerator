@@ -733,13 +733,25 @@ void loadCriteria(struct CRITERIA aCrit, struct HGT *aHGT){
 //=================================================================
 void computeCriteria(double ** Matrix1, double ** Matrix2, int size,struct CRITERIA *aCrit,double *L1, long int *A1,double *L2, long int *A2){
 
-	int mI, m, i, j, RF, QD;
-	double LS, BD = 0;
+	int mI, m, i, j, QD;
+	double LS, BD = 0, RF;
 
 	//= robinson and foulds
-	m = Bipartition_Table(Matrix1,aCrit->B,aCrit->PLACE,size);
-	mI = Bipartition_Table(Matrix2,aCrit->BI,aCrit->PLACEI,size);
-	RF = Table_Comparaison(aCrit->B,aCrit->BI,aCrit->PLACE,aCrit->PLACEI,m,mI,size); 
+	m = Bipartition_Table_rf(Matrix1,aCrit->B,aCrit->PLACE,size);
+	mI = Bipartition_Table_rf(Matrix2,aCrit->BI,aCrit->PLACEI,size);
+
+	/*for(int k=1; k<=m; k++){
+		for(int l=1; l<=size; l++){printf("%d \t", aCrit->B[aCrit->PLACE[k]][l]);}
+		printf("\n");
+	}
+	printf("\nDeuxième matrice\n");
+
+	for(int k=1; k<=mI; k++){
+		for(int l=1; l<=size; l++){printf("%d \t", aCrit->BI[aCrit->PLACEI[k]][l]);}
+		printf("\n");
+	}*/
+	//printf("\n m%d et mI%d", m, mI);
+	RF = Table_Comparaison_rf(aCrit->B,aCrit->BI,aCrit->PLACE,aCrit->PLACEI,m,mI,size);
 
 	//= least-squares
 	LS = 0.0;
@@ -763,6 +775,7 @@ void computeCriteria(double ** Matrix1, double ** Matrix2, int size,struct CRITE
 	aCrit->BD = BD;
 	aCrit->RF = RF;
 	aCrit->QD = QD;
+	//printf(" Dans la fonction computeCriteria on a %lf\n\n", RF);
 
 }
 
@@ -1766,21 +1779,23 @@ void readMatrix(FILE *in,struct InputTree *aTree){
 //
 //===================================================================================================================================
 int readInputFile(string tree1, string tree2, const char *tmpFile, struct InputTree *speciesTree_t, struct InputTree *geneTree_t,char *fichier_erreur){
-	string newick;
+	string newick, newick2;
 	int ret;
 	int finalTaille=0;
 	newick = tree1;
 	newickToMatrix(newick,speciesTree_t);
 
-	newick = tree2;
-	newickToMatrix(newick,geneTree_t);
+	newick2 = tree2;
+	newickToMatrix(newick2,geneTree_t);
 	
 	// Vérifie seulement qu'on a bien les mêmes identifiants/noms dans les deux matrics.
  	filtrerMatrice(speciesTree_t->Input,geneTree_t->Input,speciesTree_t->SpeciesName,geneTree_t->SpeciesName,speciesTree_t->size,geneTree_t->size,fichier_erreur);
 
 	if((finalTaille=ecrireMatrice(speciesTree_t->Input,tmpFile,speciesTree_t->size,speciesTree_t->SpeciesName)) == -1)
-		return -2;
+		{ printf("ça déconne !!"); return -2; }
+	//printf("\n okay what the hell ?");
 	ajouterMatriceGene(geneTree_t->Input,tmpFile,geneTree_t->size,geneTree_t->SpeciesName);
+	//EcrireMatrice(tmpfile, speciesTree_t->Input, speciesTree_t->SpeciesName, speciesTree-t->size)
 	
 	if(finalTaille<0){
 		finalTaille = 0;
@@ -1857,20 +1872,20 @@ void InitCriteria(struct CRITERIA * oldCrit, int size){
 
 	int i;
 
-	oldCrit->PLACE=(int *) malloc((2*size-3+1)*sizeof(int));
-	oldCrit->PLACEI=(int *) malloc((2*size-3+1)*sizeof(int));
-	oldCrit->B=(int **) malloc((2*size-3+1)*sizeof(int*));
-	oldCrit->BI=(int **) malloc((2*size-3+1)*sizeof(int*));
+	oldCrit->PLACE = (int *) malloc((2*size-3+1)*sizeof(int));
+	oldCrit->PLACEI = (int *) malloc((2*size-3+1)*sizeof(int));
+	oldCrit->B = (int **) malloc((2*size-3+1)*sizeof(int*));
+	oldCrit->BI = (int **) malloc((2*size-3+1)*sizeof(int*));
 
-	for (i=0;i<=2*size-3;i++)
+	for (i = 0; i <= 2*size-3; i++)
 	{
-		oldCrit->B[i]=(int *) malloc((size+1)*sizeof(int));
-		oldCrit->BI[i]=(int *) malloc((size+1)*sizeof(int));
+		oldCrit->B[i] = (int *) malloc((size+1)*sizeof(int));
+		oldCrit->BI[i] = (int *) malloc((size+1)*sizeof(int));
 	}
 
-	oldCrit->BD=0;
-	oldCrit->LS=0.0;
-	oldCrit->RF=0;
+	oldCrit->BD = 0;
+	oldCrit->LS = 0.0;
+	oldCrit->RF = 0;
 }
 
 void FreeCriteria(struct CRITERIA * Crit,int size){
@@ -3214,7 +3229,7 @@ int readInput(int Type, const char *file, struct InputTree * aTree){
 
 	//= lecture de la taille des matrices
 	fscanf(in,"%d",&size);
-	//printf("\n what the heck ? %s", file);
+	//printf("\n what the heck ? %s", in[0]);
 	
 	//= allocation de la m�moire
 	aTree->size = size;
@@ -3240,38 +3255,140 @@ int readInput(int Type, const char *file, struct InputTree * aTree){
 	}
 	size--;
 	//= reads species tree
+	if(Type == SPECIE)
+	{
+		for(i = 1; i <= size; i++)
+		{
+			fscanf(in,"%s",name);
+			strcpy(aTree->SpeciesName[i],name);
+			//printf("\nspecies:%s", aTree->SpeciesName[i]);
+		
+		for(j = 1; j <= size; j++)
+		{
+			fscanf(in,"%lf",&val);
+			aTree->Input[i][j] = val;
+		}	    
+	}
+	}
+	
+	//#### T'es obligée de passer par la boucle for de "species" même si tu regardes le deuxième arbre pour passer toute la première matrice.
+	//#### Oui c'est con mais apparement c'est le seul moyen d'accéder à la deuxième matrice :)
+
+	//= read gene tree
+	if(Type == GENE)
+	{
+		for(i = 1; i <=size; i++)
+		{
+			fscanf(in,"%s",name);
+			strcpy(aTree->SpeciesName[i+1],name);
+			//printf("\ngene :%s \n", name);
+		
+		for(j = 0; j < size; j++)
+		{
+			fscanf(in,"%lf",&val);
+			//printf("\t What %lf", val);
+			aTree->Input[i][j] = val;
+		}	
+	}
+	}
+	
+
+	strcpy(aTree->SpeciesName[size+1],"Root");
+	
+	//fclose(in);
+	
+	return 0;
+}
+
+
+
+
+//=================================================================
+//== read both matrix in the input file
+//=================================================================
+int readInputBoth(const char *file, struct InputTree * aTree, struct InputTree * bTree){
+
+	int size,i,j;
+	char name[50];
+	double val;
+	FILE * in;
+	
+	//= ouverture du fichier
+	if((in = fopen(file,"r"))== NULL)
+		return -1;
+
+	//= lecture de la taille des matrices
+	fscanf(in,"%d",&size);
+	
+	//= allocation de la m�moire
+	aTree->size = size;
+	bTree->size = size;
+	size++; // more space for the root
+	aTree->SpeciesName = (char **)malloc((size+1)*sizeof(char*));
+	aTree->Input = (double**)malloc((2*size)*sizeof(double*));
+	aTree->ADD = (double**)malloc((2*size)*sizeof(double*));
+	aTree->W = (double**)malloc((size+1)*sizeof(double*));
+
+	bTree->SpeciesName = (char **)malloc((size+1)*sizeof(char*));
+	bTree->Input = (double**)malloc((2*size)*sizeof(double*));
+	bTree->ADD = (double**)malloc((2*size)*sizeof(double*));
+	bTree->W = (double**)malloc((size+1)*sizeof(double*));
+	
+	for(i = 0; i < 2*size; i++){
+		aTree->ADD[i] = (double*)malloc((2*size)*sizeof(double));
+		aTree->Input[i] = (double*)malloc((2*size)*sizeof(double));
+		bTree->ADD[i] = (double*)malloc((2*size)*sizeof(double));
+		bTree->Input[i] = (double*)malloc((2*size)*sizeof(double));
+		if(i <= size){
+			aTree->SpeciesName[i] = (char*)malloc(SPECIES_NAME_LENGTH);
+			aTree->W[i] = (double*)malloc((size+1)*sizeof(double));
+			bTree->SpeciesName[i] = (char*)malloc(SPECIES_NAME_LENGTH);
+			bTree->W[i] = (double*)malloc((size+1)*sizeof(double));
+		}
+	}
+
+	for(i = 0; i <= size; i++)
+	{
+		for(j = 0; j <= size; j++)
+			{
+				aTree->W[i][j] = 1.0;
+				bTree->W[i][j] = 1.0;
+			}
+	}
+	size--;
+	//= reads species tree
 	for(i = 1; i <= size; i++)
 	{
 		fscanf(in,"%s",name);
-		//if(Type == SPECIE) {
 		strcpy(aTree->SpeciesName[i],name);
-			//printf("\t name species are :%s", name);
-		//}
+		//printf("\nspecies:%s", aTree->SpeciesName[i]);
+		
 		for(j = 1; j <= size; j++)
 		{
 			fscanf(in,"%lf",&val);
-			//if(Type == SPECIE) {
 			aTree->Input[i][j] = val;
-				//}
 		}	    
 	}
-
-	//= read gene tree
-	/*for(i = 1; i <= size; i++)
+	fscanf(in,"%s",name);
+	
+	for(i = 1; i <=size; i++)
 	{
 		fscanf(in,"%s",name);
-		if(Type == GENE) {
-			strcpy(aTree->SpeciesName[i],name);
-			printf("\t name genes are :%s", name);
-		}
+		strcpy(bTree->SpeciesName[i],name);
+		//printf("\ngene :%s \n", name);
+		
 		for(j = 1; j <= size; j++)
 		{
 			fscanf(in,"%lf",&val);
-			if(Type == GENE) { aTree->Input[i][j] = val; }
+			//printf("\t What %lf", val);
+			bTree->Input[i][j] = val;
 		}	
-	}*/
+	}
+	
+	
 
 	strcpy(aTree->SpeciesName[size+1],"Root");
+	strcpy(bTree->SpeciesName[size+1],"Root");
 	
 	fclose(in);
 	
