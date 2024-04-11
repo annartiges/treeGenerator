@@ -3229,7 +3229,6 @@ int readInput(int Type, const char *file, struct InputTree * aTree){
 
 	//= lecture de la taille des matrices
 	fscanf(in,"%d",&size);
-	//printf("\n what the heck ? %s", in[0]);
 	
 	//= allocation de la m�moire
 	aTree->size = size;
@@ -3361,7 +3360,6 @@ int readInputBoth(const char *file, struct InputTree * aTree, struct InputTree *
 	{
 		fscanf(in,"%s",name);
 		strcpy(aTree->SpeciesName[i],name);
-		//printf("\nspecies:%s", aTree->SpeciesName[i]);
 		
 		for(j = 1; j <= size; j++)
 		{
@@ -3375,12 +3373,10 @@ int readInputBoth(const char *file, struct InputTree * aTree, struct InputTree *
 	{
 		fscanf(in,"%s",name);
 		strcpy(bTree->SpeciesName[i],name);
-		//printf("\ngene :%s \n", name);
 		
 		for(j = 1; j <= size; j++)
 		{
 			fscanf(in,"%lf",&val);
-			//printf("\t What %lf", val);
 			bTree->Input[i][j] = val;
 		}	
 	}

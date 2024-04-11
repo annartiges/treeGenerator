@@ -32,6 +32,7 @@ using namespace std;
 #pragma warning(disable:4996)
 
 #include "structures.h"
+#include "rf.cpp"
 #include "utils_tree.cpp"
 #include "fonctions.cpp"
 
@@ -100,20 +101,14 @@ void main_hgt(string tree1, string tree2, double *distances){
 	initInputTree(&GeneTreeReduce);
 
 	//== lecture des matrices ou chaines newick en entree
-	if(readInput(SPECIE,param.input,&SpeciesTreeReduce) == -1){
-		printf("\nError in species tree\n");
-		exit(-1);
-	}
-	if(readInput(SPECIE,param.input,&GeneTreeReduce) == -1){
-		printf("\nError in gene tree\n");
-		getchar();
-		exit(-1);
-	}
-	printf("\n");
-	for(i = 1; i <= SpeciesTreeReduce.size; i++){
-		printf("\t la %s", GeneTreeReduce.SpeciesName[i]);
-	}
-    printf ("\nSpeciesTreeSize =%d, GeneTreeSize=%d\n", SpeciesTreeReduce.size, GeneTreeReduce.size);
+
+	readInputBoth(param.input, &SpeciesTreeReduce, &GeneTreeReduce);
+	//printf("\n");
+	/*for(i = 1; i <= SpeciesTreeReduce.size; i++){
+		printf("\n Specie %s", SpeciesTreeReduce.SpeciesName[i]);
+		printf("\t Gene %s", GeneTreeReduce.SpeciesName[i]);
+	}*/
+    //printf ("\nSpeciesTreeSize = %d, GeneTreeSize = %d\n", SpeciesTreeReduce.size, GeneTreeReduce.size);
 
 
 //== lecture des matrices ou chaines newick en entree VM
@@ -140,7 +135,7 @@ void main_hgt(string tree1, string tree2, double *distances){
 	computeCriteria(SpeciesTreeReduce.ADD,GeneTreeReduce.ADD,SpeciesTreeReduce.size,&aCrit,SpeciesTreeReduce.LONGUEUR,SpeciesTreeReduce.ARETE,GeneTreeReduce.LONGUEUR,GeneTreeReduce.ARETE);
 	distances[0] = aCrit.RF;
 
-	printf("RF=%lf",distances[0]);
+	//printf("RF=%lf",distances[0]);
 	if(SpeciesTree.size-nb_same_espece>GeneTree.size-nb_same_espece){
 		min_diff = GeneTree.size - nb_same_espece;
 	}
@@ -156,13 +151,12 @@ void main_hgt(string tree1, string tree2, double *distances){
 
 	if(nb_same_espece <= 3){
 		distances[0] = distances[0] -((alpha+0.000001)*((min(SpeciesTree.size,GeneTree.size)-(1.0*nb_same_espece))/(1.0*min(SpeciesTree.size,GeneTree.size))));
-		//distances[0]=0;
-		// distances[0]=1.0+((alpha)*((min(SpeciesTree.size,GeneTree.size)-(1.0*nb_same_espece))/(1.0*min(SpeciesTree.size,GeneTree.size))));
-	}else
+	}
+	else
 	{
 		distances[0] = distances[0]/((2.0*nb_same_espece)-6.0)+alpha*((min(SpeciesTree.size,GeneTree.size)-(1.0*nb_same_espece))/(1.0*min(SpeciesTree.size,GeneTree.size))); //normalisation par le nombre d'espèces communes entre les deux arbres
 	}
-	printf("\tscript HGT %f", distances[0]);
+	//printf("\t %f", distances[0]);
 
 	distances[1] = aCrit.LS;
 	distances[2] = aCrit.BD;

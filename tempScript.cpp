@@ -11,6 +11,7 @@
 #include <time.h>
 #include <string.h>
 #include <sstream>
+#include <algorithm>
 //#include "structures.h"
 #include "hgt_int.cpp"
 
@@ -688,11 +689,10 @@ void createTree2 (int nbSpecies,double l, const char * outputfilename, string& n
     
 	for(int j = 1; j <= 2*n-3; j++){
 		MaxLong += LONGUEUR[j-1];
-	}			
-    //printf("\nlongueur moyenne des branches = %lf",MaxLong/(2*n-3));
+	}
     
     double facteur = 1.0/(MaxLong/(2*n-3));
-	printf("\n check parameters %f %f", facteur, MaxLong);
+	//printf("\n check parameters %f %f", facteur, MaxLong);
     MaxLong = 0;
     
     for(int j = 1; j <= 2*n-3; j++){
@@ -700,13 +700,13 @@ void createTree2 (int nbSpecies,double l, const char * outputfilename, string& n
 		MaxLong += LONGUEUR[j-1];
 	} 
 
-	printf("\n check parameters 2 %f %f", facteur, MaxLong);
-	/*for(i=0;i<=2*n;i++){
+	/*printf("\n check parameters 2 %f %f", facteur, MaxLong);
+	for(i=0;i<=2*n;i++){
          printf("\n Longueur %f et Aretes %ld & %ld", LONGUEUR[i], ARETE[2*i], ARETE[2*i+1]);
 
 		 //for (j=1; j<= n; j++) { printf("test %f \t", DI[i][j]); }
-    }*/
-	printf("\nl= %lf,facteur = %lf,longueur moyenne des branches = %f\n",l,facteur,MaxLong/(2*n-3));
+    }
+	printf("\nl= %lf,facteur = %lf,longueur moyenne des branches = %f\n",l,facteur,MaxLong/(2*n-3));*/
     //=============================================================================
 	//= SAUVEGARDE DE L'ARBRE
 	//=============================================================================
@@ -726,14 +726,61 @@ void createTree2 (int nbSpecies,double l, const char * outputfilename, string& n
 	
 }
 
+//=============================================
+//	Function creating a variant tree and computing the RF distance
+//=============================================
+double swapLeafComputeRF(string treeRef, string& secTree, int sp1, int sp2)
+{
+	string trueSpecie1, fakeSpecie1, trueSpecie2, fakeSpecie2;
+	string espece11, espece12, espece21, espece22;
+	string filling = "XXXXX", espece1 = intToString(sp1), espece2 = intToString(sp2);
+	int start_pos1, start_pos2;
+	double *mat_distances = new double[4];
+
+	
+	espece11 = "(" + espece1 + ":";
+	espece12 = "," + espece1 + ":";
+	start_pos1 = secTree.find(espece11);
+
+	if(start_pos1 <= secTree.length() && start_pos1 >= 0)
+	{
+		trueSpecie1 = espece11;
+		trueSpecie2 = espece11[0] + espece2 + ":";
+		fakeSpecie1 = espece12;
+		fakeSpecie2 = espece12[0] + espece2 + ":";
+	}
+	else
+	{
+		trueSpecie1 = espece12;
+		trueSpecie2 = espece12[0] + espece2 + ":";
+		fakeSpecie1 = espece11;
+		fakeSpecie2 = espece11[0] + espece2 + ":";
+
+	}
+	secTree = myreplace(secTree, trueSpecie1, filling);
+	start_pos2 = secTree.find(trueSpecie2);
+
+	if(start_pos2 <= secTree.length() && start_pos2 >= 0)
+	{ secTree = myreplace(secTree, trueSpecie2, trueSpecie1); }
+	else
+	{ secTree = myreplace(secTree, fakeSpecie2, fakeSpecie1); }
+
+	secTree = myreplace(secTree, filling, trueSpecie2);
+	main_hgt(treeRef, secTree, mat_distances);
+
+	return mat_distances[0];
+
+}
+
+
 string myreplace(string &s, string toReplace,string replaceWith){
     return(s.replace(s.find(toReplace), toReplace.length(), replaceWith));
 }
 
-void createSubstituteTrees2(string treeRef, int nSpecies)
+void createSubstituteTrees2(string treeRef, int nSpecies, int nbArbres)
 {
 	int nbSpecies = nSpecies;
-	double distMax = 2*nbSpecies-6;
+	//double distMax = 2*nbSpecies-6;
 	double dix = 0.10, vingtCinq = 0.25, cinquante = 0.50, soixanteQuinze = 0.75;
 	int quota0 = 0, quota10 = 0, quota25 = 0, quota50 = 0, quota75 = 0, quotaMax = 0;
 	int nbEspPart = 9;
@@ -742,8 +789,18 @@ void createSubstituteTrees2(string treeRef, int nSpecies)
 	double distancesRF;
 	double nbEspSupp = (double(nbSpecies)*double(pLeavesAbsent))/100.0;
 	nbEspSupp = ceil(nbEspSupp);
-	//printf("\t ######## JUst to check nbEspSupp %lf", nbEspSupp);
 
+	vector <string> mesTrees0;
+	vector <string> mesTrees10;
+	vector <string> mesTrees25;
+	vector <string> mesTrees50;
+	vector <string> mesTrees75;
+
+	vector <string> mesTrees0_tmp;			
+	vector <string> mesTrees10_tmp;
+	vector <string> mesTrees25_tmp;
+	vector <string> mesTrees50_tmp;
+	vector <string> mesTrees75_tmp;
 
 	string espece1, espece11, espece12;
 	string espece2;
@@ -756,13 +813,14 @@ void createSubstituteTrees2(string treeRef, int nSpecies)
 	
 	string trueSpecie1, fakeSpecie1, trueSpecie2, fakeSpecie2, tree2; 
 			
-	string newTree;
+	string newTree, nvlArbre;
 	int start_pos1;
 	int start_pos2;
 
 	for (int i = 1; i < nbSpecies; i++)
 	{
-		distancesRF = 0;
+		//distancesRF = 0;
+		printf("\n");
 								
 									//Pour savoir si les quotas ne sont pas complétés
 		if(quota0 <= nbEspPart || quota10 <= nbEspPart || quota25 <= nbEspPart || quota50 <= nbEspPart || quota75 <= nbEspPart)
@@ -772,7 +830,6 @@ void createSubstituteTrees2(string treeRef, int nSpecies)
 			espece11 = "(" + espece1 + ":";
 			espece12 = "," + espece1 + ":";
 			start_pos1 = treeRef.find(espece11);
-			//printf("\n %s taille arbre réf de lgr %ld", espece11.c_str(), treeRef.length());
 			if(start_pos1 <= treeRef.length() && start_pos1 >=0){
 				trueSpecie1 = espece11;
 				fakeSpecie1 = espece12;
@@ -780,7 +837,7 @@ void createSubstituteTrees2(string treeRef, int nSpecies)
 			else{
 				trueSpecie1 = espece12;
 				fakeSpecie1 = espece11;
-			}		
+			}
 															
 			for (int j = (i+1); j <= nbSpecies; j++)
 			{
@@ -794,8 +851,6 @@ void createSubstituteTrees2(string treeRef, int nSpecies)
 					espece2 = intToString(j);				
 					trueSpecie2 = trueSpecie1[0] + espece2 + ":";
 					fakeSpecie2 = fakeSpecie1[0] + espece2 + ":";
-
-					//printf("\n %s %s", trueSpecie1.c_str(), trueSpecie2.c_str());
 													
 					start_pos2 = newTree.find(trueSpecie2);
 					int treeSize = newTree.length();
@@ -807,22 +862,19 @@ void createSubstituteTrees2(string treeRef, int nSpecies)
 					{
 						newTree = myreplace(newTree, fakeSpecie2 ,fakeSpecie1);
 					}
-					
+					//nvlArbre = treeRef;
+					distancesRF = swapLeafComputeRF(treeRef, newTree, i, j);
+					//newTree = nvlArbre;
 					newTree = myreplace(newTree, filling ,trueSpecie2);
-					//printf("\n %s", newTree.c_str());
-					//printf("\n %s", treeRef.c_str());
 					main_hgt(treeRef, newTree, mat_distances);
 					distancesRF = mat_distances[0];
-					//printf(" \nRF de type %s", typeid(distancesRF).name());
 					if(distancesRF==0){
 						distancesRF = 0.0;
 					}
-													
-					//traitement des pourcentage des distances	
 
 					if(quota0<=nbEspPart){
-						//mesTrees0.push_back(treeRef);
-						//mesTrees0_tmp.push_back(treeRef);
+						mesTrees0.push_back(treeRef);
+						mesTrees0_tmp.push_back(treeRef);
 						quota0++;
 					}
 													
@@ -834,31 +886,27 @@ void createSubstituteTrees2(string treeRef, int nSpecies)
 						}
 						if(distancesRF>0 && distancesRF<=dix && quota10<=nbEspPart)
 						{
-							//mesTrees10.push_back(tree2);
-							//mesTrees10_tmp.push_back(tree2);
-							//printf("\n Trees10 %s", tree2.c_str());
+							mesTrees10.push_back(tree2);
+							mesTrees10_tmp.push_back(tree2);
 							quota10++;
 						}								
 					
 						else if(distancesRF>dix && distancesRF<=vingtCinq && quota25<=nbEspPart)
 						{		
-							//mesTrees25.push_back(tree2);
-							//mesTrees25_tmp.push_back(tree2);
-							//printf("\n Trees25 %s", tree2.c_str());
+							mesTrees25.push_back(tree2);
+							mesTrees25_tmp.push_back(tree2);
 							quota25++;
 						}
 						else if(distancesRF>vingtCinq && distancesRF<=cinquante && quota50<=nbEspPart)
 						{										
-							//mesTrees50.push_back(tree2);
-							//mesTrees50_tmp.push_back(tree2);
-							//printf("\n Trees50 %s", tree2.c_str());
+							mesTrees50.push_back(tree2);
+							mesTrees50_tmp.push_back(tree2);
 							quota50++;
 						}
 						else if(distancesRF>cinquante && distancesRF<=soixanteQuinze && quota75<=nbEspPart)
 						{										
-							//mesTrees75.push_back(tree2);
-							//mesTrees75_tmp.push_back(tree2);
-							//printf("\n\n Trees75 %s \n\n", tree2.c_str());
+							mesTrees75.push_back(tree2);
+							mesTrees75_tmp.push_back(tree2);
 							quota75++;
 						}
 					}
@@ -870,19 +918,125 @@ void createSubstituteTrees2(string treeRef, int nSpecies)
 			}
 		}					
 	}
-	//printf("okay à la base c'était ça l'arbre \n\n %s \n\n", treeRef.c_str());
-	printf("\n okay donc les résultats sont : Quota0=%d; Quota10=%d; Quota25=%d; Quota50=%d; Quota75=%d; QuotaMax=%d", quota0, quota10, quota25, quota50, quota75, quotaMax);
+	if(std::find(mesTrees10.begin(), mesTrees10.end(), treeRef) != mesTrees10.end()) {printf("\nhaha");}
+	
+	//printf("\n okay donc les résultats sont : Quota0=%d; Quota10=%d; Quota25=%d; Quota50=%d; Quota75=%d; QuotaMax=%d", quota0, quota10, quota25, quota50, quota75, quotaMax);
 }
 
-int main()
+void createSubstituteTrees3(string treeRef, int nbSpecies, int nbArbres, double lowLimit, double highLimit, vector <string>& allTheTrees)
 {
-	int nbArbres = 0, nbSpecies = 8;
-	string refTree;
-	string mario = "MArio !";
+	int nbEspPart = 9;
+	double pLeavesAbsent = 0.25;
+	double nbEspSupp = (double(nbSpecies)*double(pLeavesAbsent))/100.0;
+	nbEspSupp = ceil(nbEspSupp);
+	printf("\n Les limites sont les suivantes %f et %f", lowLimit, highLimit);
 
-	for(int i = 1; i <= 1; i++) {
+	string newTree, nvlArbre;
+	vector <string> mesArbres;
+	vector <string> arbresAux;
+	int quota = 0, x, y, i, j;
+	double distancesRF;
+
+	mesArbres.push_back(treeRef);
+	arbresAux.push_back(treeRef);
+	allTheTrees.push_back(treeRef);
+	x = 0; y = 1;
+	int stop = 5, count = 0;
+
+	while(quota < nbArbres)
+	{
+		if(quota == 0)
+		{
+			newTree = arbresAux[x];
+			x++;
+		}
+		else
+		{
+			newTree = mesArbres[y];
+			y++;
+		}
+		//printf("\n hello %s", newTree.c_str());
+		for(i = 1; i < nbSpecies; i++)
+		{
+			//printf("\n");
+			for(j = i + 1; j <= nbSpecies; j++)
+			{
+				nvlArbre = newTree;
+				//if(swapLeafComputeRF(newTree, newTree, i, j)== 0) { j++; }
+				distancesRF = swapLeafComputeRF(treeRef, nvlArbre, i, j);
+				
+				if(distancesRF > lowLimit && distancesRF <= highLimit && std::find(mesArbres.begin(), mesArbres.end(), nvlArbre) == mesArbres.end())
+				{
+					mesArbres.push_back(nvlArbre);
+					allTheTrees.push_back(nvlArbre);
+					quota++;
+					if(quota == nbArbres) { i = j = nbSpecies; }
+				}
+				else
+				{
+					arbresAux.push_back(nvlArbre);
+				}
+			}
+		}
+		//printf("\n Toujours pas assez d'arbres ! On en a seulement %d \n", quota);
+		count++;
+		if(count == stop){ exit(1); }
+	}
+	printf("\n\t\t quota final = %d\n", quota);
+
+}
+
+int main(int nargs,char ** argv)
+{
+	int nbClusters = atoi(argv[1]), nbSpecies = atoi(argv[2]), noiseLvl = atoi(argv[3]), nbTrees = atoi(argv[4]);
+	int nbTreesTot = (nbTrees+1) * nbClusters;
+	string refTree;
+	double *mat_dist = new double[4];
+	double lowNoise, highNoise, RF;
+	vector <string> allTrees;
+	printf("okay noiseLvl vaut %d", noiseLvl);
+	//FILE * out = fopen(argv[nargc-1],"w");
+
+
+	if(noiseLvl == 10)
+	{
+		lowNoise = 0;
+		highNoise = 0.10;
+	}
+	else if(noiseLvl == 25)
+	{
+		lowNoise = 0.10;
+		highNoise = 0.25;
+	}
+	else if(noiseLvl == 50)
+	{
+		lowNoise = 0.25;
+		highNoise = 0.50;
+	}
+	else if(noiseLvl == 75)
+	{
+		lowNoise = 0.50;
+		highNoise = 0.75;
+	}
+
+	//fprintf(out, "%d \t %d \t %d \t 0 \t %d", nbTreesTot, nbSpecies, , noiseLvl);
+
+	for(int i = 1; i <= nbClusters; i++) {
 		createTree2(nbSpecies, 0.5, "something", refTree);
-		createSubstituteTrees2(refTree, nbSpecies);
+		createSubstituteTrees3(refTree, nbSpecies, nbTrees, lowNoise, highNoise, allTrees);
+	}
+
+	for( int i = 1; i <= nbTreesTot; i++)
+	{
+		printf("\n");
+		//fprintf(outfile, "\n");
+		for(int j = 1; j <= nbTreesTot; j++)
+		{
+			main_hgt(allTrees[i-1].c_str(), allTrees[j-1].c_str(), mat_dist);
+			RF = mat_dist[0];
+			printf("%f   ", RF);
+			//fprintf(outfile, "\t%f", RF);
+		}
 	}
 	printf("\n");
 }
