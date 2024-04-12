@@ -923,18 +923,19 @@ void createSubstituteTrees2(string treeRef, int nSpecies, int nbArbres)
 	//printf("\n okay donc les résultats sont : Quota0=%d; Quota10=%d; Quota25=%d; Quota50=%d; Quota75=%d; QuotaMax=%d", quota0, quota10, quota25, quota50, quota75, quotaMax);
 }
 
-void createSubstituteTrees3(string treeRef, int nbSpecies, int nbArbres, double lowLimit, double highLimit, vector <string>& allTheTrees)
+void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit, double highLimit, vector <string>& allTheTrees)
 {
 	int nbEspPart = 9;
 	double pLeavesAbsent = 0.25;
 	double nbEspSupp = (double(nbSpecies)*double(pLeavesAbsent))/100.0;
 	nbEspSupp = ceil(nbEspSupp);
-	printf("\n Les limites sont les suivantes %f et %f", lowLimit, highLimit);
+	//printf("\n Les limites sont les suivantes %f et %f", lowLimit, highLimit);
 
 	string newTree, nvlArbre;
 	vector <string> mesArbres;
 	vector <string> arbresAux;
-	int quota = 0, x, y, i, j;
+	vector <string> arbresTemp;
+	int quota = 0, x, y, i, j, nb = 0, first = 0;
 	double distancesRF;
 
 	mesArbres.push_back(treeRef);
@@ -955,10 +956,8 @@ void createSubstituteTrees3(string treeRef, int nbSpecies, int nbArbres, double 
 			newTree = mesArbres[y];
 			y++;
 		}
-		//printf("\n hello %s", newTree.c_str());
 		for(i = 1; i < nbSpecies; i++)
 		{
-			//printf("\n");
 			for(j = i + 1; j <= nbSpecies; j++)
 			{
 				nvlArbre = newTree;
@@ -992,10 +991,11 @@ int main(int nargs,char ** argv)
 	int nbTreesTot = (nbTrees+1) * nbClusters;
 	string refTree;
 	double *mat_dist = new double[4];
-	double lowNoise, highNoise, RF;
+	double lowNoise, highNoise;
+	float RF;
 	vector <string> allTrees;
-	printf("okay noiseLvl vaut %d", noiseLvl);
-	//FILE * out = fopen(argv[nargc-1],"w");
+	//printf("okay noiseLvl vaut %d", noiseLvl);
+	FILE * outfile = fopen("matrice_outfile.txt","w");
 
 
 	if(noiseLvl == 10)
@@ -1019,23 +1019,23 @@ int main(int nargs,char ** argv)
 		highNoise = 0.75;
 	}
 
-	//fprintf(out, "%d \t %d \t %d \t 0 \t %d", nbTreesTot, nbSpecies, , noiseLvl);
+	fprintf(outfile, "%d   %d   %d   0   %d", nbTreesTot, nbSpecies, nbClusters, noiseLvl);
 
 	for(int i = 1; i <= nbClusters; i++) {
 		createTree2(nbSpecies, 0.5, "something", refTree);
-		createSubstituteTrees3(refTree, nbSpecies, nbTrees, lowNoise, highNoise, allTrees);
+		createClusters(refTree, nbSpecies, nbTrees, lowNoise, highNoise, allTrees);
 	}
 
 	for( int i = 1; i <= nbTreesTot; i++)
 	{
-		printf("\n");
-		//fprintf(outfile, "\n");
+		//printf("\n");
+		fprintf(outfile, "\n");
 		for(int j = 1; j <= nbTreesTot; j++)
 		{
 			main_hgt(allTrees[i-1].c_str(), allTrees[j-1].c_str(), mat_dist);
 			RF = mat_dist[0];
-			printf("%f   ", RF);
-			//fprintf(outfile, "\t%f", RF);
+			//printf("%f   ", RF);
+			fprintf(outfile, "%f   ", RF);
 		}
 	}
 	printf("\n");
