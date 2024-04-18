@@ -927,20 +927,21 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 {
 	int nbEspPart = 9;
 	double pLeavesAbsent = 0.25;
+	double *matrices = new double[4];
 	double nbEspSupp = (double(nbSpecies)*double(pLeavesAbsent))/100.0;
 	nbEspSupp = ceil(nbEspSupp);
-	//printf("\n Les limites sont les suivantes %f et %f", lowLimit, highLimit);
 
 	string newTree, nvlArbre;
 	vector <string> mesArbres;
 	vector <string> arbresAux;
 	vector <string> arbresTemp;
-	int quota = 0, x, y, i, j, nb = 0, first = 0;
+	int quota = 0, quotaT = 0, x, y, i, j, nb = 0, first = 0, compt;
 	double distancesRF;
 
 	mesArbres.push_back(treeRef);
 	arbresAux.push_back(treeRef);
 	allTheTrees.push_back(treeRef);
+	arbresTemp.push_back(treeRef);
 	x = 0; y = 1;
 	int stop = 5, count = 0;
 
@@ -956,20 +957,21 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 			newTree = mesArbres[y];
 			y++;
 		}
+		//printf("\n avant les boucles i et j\n");
 		for(i = 1; i < nbSpecies; i++)
 		{
 			for(j = i + 1; j <= nbSpecies; j++)
 			{
 				nvlArbre = newTree;
-				//if(swapLeafComputeRF(newTree, newTree, i, j)== 0) { j++; }
 				distancesRF = swapLeafComputeRF(treeRef, nvlArbre, i, j);
 				
-				if(distancesRF > lowLimit && distancesRF <= highLimit && std::find(mesArbres.begin(), mesArbres.end(), nvlArbre) == mesArbres.end())
+				if(distancesRF > lowLimit && distancesRF <= highLimit && std::find(arbresTemp.begin(), arbresTemp.end(), nvlArbre) == arbresTemp.end())
 				{
-					mesArbres.push_back(nvlArbre);
-					allTheTrees.push_back(nvlArbre);
-					quota++;
-					if(quota == nbArbres) { i = j = nbSpecies; }
+					//mesArbres.push_back(nvlArbre);
+					//allTheTrees.push_back(nvlArbre);
+					arbresTemp.push_back(nvlArbre);
+					quotaT++;
+					if(quotaT == nbArbres) { i = j = nbSpecies; }
 				}
 				else
 				{
@@ -977,11 +979,35 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 				}
 			}
 		}
-		//printf("\n Toujours pas assez d'arbres ! On en a seulement %d \n", quota);
+		printf("\n fin des boucles i et j avec %d temps\n", quotaT);
 		count++;
-		if(count == stop){ exit(1); }
+		// Dans l'idée c'est ce qui suit mais ça va être mal implémenté.
+
+		compt = 1;
+		while(quotaT > 0)
+		{
+			//printf("\n hello %d   %s", quotaT, arbresTemp[quotaT-1].c_str());
+			main_hgt(mesArbres[compt-1].c_str(), arbresTemp[quotaT-1].c_str(), matrices);
+			if(matrices[0] == 0){
+				compt = 1;
+				quotaT = quotaT-1;
+			}
+			else{
+				compt++;
+				if(compt>quota){
+					mesArbres.push_back(arbresTemp[quotaT-1].c_str());
+					allTheTrees.push_back(arbresTemp[quotaT-1].c_str());
+					quota++;
+					quotaT = quotaT-1;
+					compt = 1;
+					if(quota == nbArbres){quotaT = 0;}
+				}
+			}
+		}
+		arbresTemp.clear();
+		
 	}
-	printf("\n\t\t quota final = %d\n", quota);
+	printf("\n\t\t quota final = %d\n", quotaT);
 
 }
 
@@ -991,10 +1017,8 @@ int main(int nargs,char ** argv)
 	int nbTreesTot = (nbTrees+1) * nbClusters;
 	string refTree;
 	double *mat_dist = new double[4];
-	double lowNoise, highNoise;
-	float RF;
+	double lowNoise, highNoise, RF;
 	vector <string> allTrees;
-	//printf("okay noiseLvl vaut %d", noiseLvl);
 	FILE * outfile = fopen("matrice_outfile.txt","w");
 
 
@@ -1025,16 +1049,17 @@ int main(int nargs,char ** argv)
 		createTree2(nbSpecies, 0.5, "something", refTree);
 		createClusters(refTree, nbSpecies, nbTrees, lowNoise, highNoise, allTrees);
 	}
+	printf("\n on a fait les clusters ?");
+	printf("\n on est au moins sorti de la fonction ?");
 
 	for( int i = 1; i <= nbTreesTot; i++)
 	{
-		//printf("\n");
 		fprintf(outfile, "\n");
+		//printf("\n\n%s", allTrees[i-1].c_str());
 		for(int j = 1; j <= nbTreesTot; j++)
 		{
 			main_hgt(allTrees[i-1].c_str(), allTrees[j-1].c_str(), mat_dist);
 			RF = mat_dist[0];
-			//printf("%f   ", RF);
 			fprintf(outfile, "%f   ", RF);
 		}
 	}
