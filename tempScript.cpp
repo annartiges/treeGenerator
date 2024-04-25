@@ -280,7 +280,7 @@ void SAVEASNewick2(double *LONGUEUR, long int *ARETE,int nn,const char* t, strin
 	}	
 
 	strcat(string,";");
-	printf("\n %s \n", string);
+	//printf("\n %s \n", string);
 	newick = string;
 	//FILE *pt_t = fopen(t,"a+");
 	//fprintf(pt_t,"%s\n",string);
@@ -935,7 +935,7 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 	vector <string> mesArbres;
 	vector <string> arbresAux;
 	vector <string> arbresTemp;
-	int quota = 0, quotaT = 0, x, y, i, j, nb = 0, first = 0, compt;
+	int quota = 0, quotaT = 1, x, y, i, j, nb = 0, first = 0, compt;
 	double distancesRF;
 
 	mesArbres.push_back(treeRef);
@@ -957,7 +957,6 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 			newTree = mesArbres[y];
 			y++;
 		}
-		//printf("\n avant les boucles i et j\n");
 		for(i = 1; i < nbSpecies; i++)
 		{
 			for(j = i + 1; j <= nbSpecies; j++)
@@ -979,14 +978,15 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 				}
 			}
 		}
-		printf("\n fin des boucles i et j avec %d temps\n", quotaT);
-		count++;
+		//printf("\n fin des boucles i et j avec %d temps et on a déjà %d\n", quotaT, quota);
+		//count++;
 		// Dans l'idée c'est ce qui suit mais ça va être mal implémenté.
 
 		compt = 1;
 		while(quotaT > 0)
 		{
 			//printf("\n hello %d   %s", quotaT, arbresTemp[quotaT-1].c_str());
+			//printf("\n On rentre dans la boucle ?");
 			main_hgt(mesArbres[compt-1].c_str(), arbresTemp[quotaT-1].c_str(), matrices);
 			if(matrices[0] == 0){
 				compt = 1;
@@ -1007,22 +1007,127 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 		arbresTemp.clear();
 		
 	}
-	printf("\n\t\t quota final = %d\n", quotaT);
+	//printf("\n\t\t quota final = %d\n", quota);
 
 }
 
 int main(int nargs,char ** argv)
 {
-	int nbClusters = atoi(argv[1]), nbSpecies = atoi(argv[2]), noiseLvl = atoi(argv[3]), nbTrees = atoi(argv[4]);
-	int nbTreesTot = (nbTrees+1) * nbClusters;
+	//if(nargs == 1){ printf("nope !"); exit(-1);}
+	//int nb_Clusters = atoi(argv[1]), nb_Feuilles = atoi(argv[2]), noiseLvl = atoi(argv[3]), nbTrees = atoi(argv[4]);
+	//int nbTreesTot = (nbTrees+1) * nb_Clusters;
+	int nbarbres[10];
+	int nbFeuilles[10];
+	int nbClusters[10];
+	int nb_trees[10];
+	nbarbres[0] = 19, nbarbres[1] = 9, nbarbres[2] = 6, nbarbres[3] = 4, nbarbres[4] = 3, nbarbres[5] = 1;
+	nbFeuilles[0] = 8, nbFeuilles[1] = 16, nbFeuilles[2] = 32, nbFeuilles[3] = 64;
+	nbClusters[0] = 1, nbClusters[1] = 2, nbClusters[2] = 3, nbClusters[3] = 4, nbClusters[4] = 5, nbClusters[5] = 10;
+	nb_trees[0] = 19, nb_trees[1] = 9, nb_trees[2] = 6, nb_trees[3] = 4, nb_trees[4] = 3, nb_trees[5] = 1; 
+	float volNoise[10];
+	volNoise[0] = 0.0, volNoise[1] = 0.1, volNoise[2] = 0.25, volNoise[3] = 0.5, volNoise[4] = 0.75;
+	int startL = 0, endL, startN = 1, endN, endC, limSup;
 	string refTree;
 	double *mat_dist = new double[4];
 	double lowNoise, highNoise, RF;
 	vector <string> allTrees;
-	FILE * outfile = fopen("matrice_outfile.txt","w");
+	FILE * outfile = fopen("test_auto2.txt","w");
+	printf("On arrive ici au moins ?");
+	char okay = argv[1][1];
+	
+	//Pour la génération de plusieurs matrices
+	int nbTreesTot = 20;
+	/*if(argv[1] == "-m")
+	{
+		// enchainement de cout/cin pour récupérer les infos
+		int nb_Clusters, leaves, noiseLVL;
+		int nb_repet = argv[2];
+		cout<<"How many clusters ?";
+		cin>>nb_Clusters;
+		cout<<"How many leaves ?";
+		cin>>nb_Feuilles;
+		cout<<"Level of noise ?";
+		cin>>noiseLvl
+		lowNoise = volNoise[noiseLvl-1];
+		highNoise = volNoise[noiseLvl];
+		for(m = 1; m <= nb_repet; m++)
+		{
+			for(i = 1; i <= nb_Clusters; i++)
+			{
+				createTree2(nb_Feuilles, 1, "something", refTree);
+				createClusters(refTree, nb_Feuilles, nbTrees, lowNoise, highNoise, allTrees);
+			}
+		}
+	}*/
+
+	if(okay == 'L')
+	{
+		nbFeuilles[0] = atoi(argv[2]);
+		endL = 1;
+		endN = 3;
+		endC = 6;
+	}
+	else if(argv[1] == "C")
+	{
+		nbClusters[0] = atoi(argv[2]);
+		endC = 1;
+		endL = 4;
+		endN = 5;
+	}
+	else if(argv[1] == "-N")
+	{
+		limSup = atoi(argv[2]);
+		volNoise[0] = volNoise[limSup-1];
+		volNoise[1] = volNoise[limSup];
+
+		if(limSup == 1){
+			startL = 1; 
+		}
+		endN = 1;
+		endL = 4;
+		endC = 6;
+	}
+	printf("\n on va checker les arbres de %d à  %d \n", startL, endL);
+
+	for(int a = startL; a < endL; a++)
+	{
+		int nb_Feuilles = nbFeuilles[a];
+		if (nb_Feuilles == 8){ startN = 2;}
+		else{ startN = 1; }
+		for(int b = startN; b < endN; b++)
+		{
+			float lowNoise = volNoise[b-1];
+			float highNoise = volNoise[b];
+			for(int c = 4; c < 6; c++)
+			{
+				int nb_Clusters = nbClusters[c];
+				int nbTrees = nb_trees[c];
+				for(int d = 0; d < nb_Clusters; d++)
+				{
+					createTree2(nb_Feuilles, 0.5, "something", refTree);
+					createClusters(refTree, nb_Feuilles, nbTrees, lowNoise, highNoise, allTrees);
+				}
+				fprintf(outfile, "%d   %d   %d   0   %f", nbTreesTot, nb_Feuilles, nb_Clusters, highNoise*100);
+				for( int i = 1; i <= nbTreesTot; i++)
+				{
+					fprintf(outfile, "\n");
+					//printf("\n\n%s", allTrees[i-1].c_str());
+					for(int j = 1; j <= nbTreesTot; j++)
+					{
+						main_hgt(allTrees[i-1].c_str(), allTrees[j-1].c_str(), mat_dist);
+						RF = mat_dist[0];
+						fprintf(outfile, "%f   ", RF);
+					}
+				}
+				fprintf(outfile, "\n");
+				//fprintf(outfile, "\n %s", refTree.c_str());
+			}
+		}
+	}
+	
 
 
-	if(noiseLvl == 10)
+	/*if(noiseLvl == 10)
 	{
 		lowNoise = 0;
 		highNoise = 0.10;
@@ -1043,14 +1148,12 @@ int main(int nargs,char ** argv)
 		highNoise = 0.75;
 	}
 
-	fprintf(outfile, "%d   %d   %d   0   %d", nbTreesTot, nbSpecies, nbClusters, noiseLvl);
+	fprintf(outfile, "%d   %d   %d   0   %d", nbTreesTot, nbSpecies, nb_Clusters, noiseLvl);
 
-	for(int i = 1; i <= nbClusters; i++) {
+	for(int i = 1; i <= nb_Clusters; i++) {
 		createTree2(nbSpecies, 0.5, "something", refTree);
 		createClusters(refTree, nbSpecies, nbTrees, lowNoise, highNoise, allTrees);
 	}
-	printf("\n on a fait les clusters ?");
-	printf("\n on est au moins sorti de la fonction ?");
 
 	for( int i = 1; i <= nbTreesTot; i++)
 	{
@@ -1062,6 +1165,8 @@ int main(int nargs,char ** argv)
 			RF = mat_dist[0];
 			fprintf(outfile, "%f   ", RF);
 		}
-	}
+	}*/
+	fprintf(outfile, "\n");
+	fclose(outfile);
 	printf("\n");
 }
