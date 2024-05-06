@@ -944,19 +944,29 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 	arbresTemp.push_back(treeRef);
 	x = 0; y = 1;
 	int stop = 5, count = 0;
+	printf("\n\n NEW CLUSTER ! \n");
 
 	while(quota < nbArbres)
 	{
-		if(quota == 0)
+		quotaT = 1;
+		if(quota == x)
 		{
+			printf("\n check x %d\n", x);
 			newTree = arbresAux[x];
+			printf("\n arbre de X %s", newTree.c_str());
 			x++;
 		}
-		else
+		else if(y <= quota)
 		{
+			printf("\n check y \n");
 			newTree = mesArbres[y];
 			y++;
 		}
+		else {
+			printf("\nProblème quelque part :( \n");
+			exit(1);
+		}
+		printf("\n yellow");
 		for(i = 1; i < nbSpecies; i++)
 		{
 			for(j = i + 1; j <= nbSpecies; j++)
@@ -978,36 +988,70 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 				}
 			}
 		}
-		//printf("\n fin des boucles i et j avec %d temps et on a déjà %d\n", quotaT, quota);
-		//count++;
-		// Dans l'idée c'est ce qui suit mais ça va être mal implémenté.
 
 		compt = 1;
-		while(quotaT > 0)
+		/*while(quotaT > 0)
 		{
-			//printf("\n hello %d   %s", quotaT, arbresTemp[quotaT-1].c_str());
+			printf("\n%s\n%s\n\n", mesArbres[compt-1].c_str(), arbresTemp[quotaT-1].c_str());
 			//printf("\n On rentre dans la boucle ?");
 			main_hgt(mesArbres[compt-1].c_str(), arbresTemp[quotaT-1].c_str(), matrices);
-			if(matrices[0] == 0){
+			if(matrices[0] == 0 || matrices[0] > highLimit || matrices[0] < lowLimit){
+				arbresAux.push_back(arbresTemp[quotaT-1]);
 				compt = 1;
 				quotaT = quotaT-1;
+				printf("BAD ? %f  %d\t\n", matrices[0], quotaT);
 			}
-			else{
+			else if(matrices[0]<=highLimit){
 				compt++;
-				if(compt>quota){
+				printf("GOOD ? %f %d \t %s \n", matrices[0], compt, "hello");
+				if(compt >= quota){
 					mesArbres.push_back(arbresTemp[quotaT-1].c_str());
 					allTheTrees.push_back(arbresTemp[quotaT-1].c_str());
+
+					//printf("\n%s\n", arbresTemp[quotaT-1].c_str());
 					quota++;
-					quotaT = quotaT-1;
 					compt = 1;
+					printf("QUOTA=%d \n\n", quotaT);
+					quotaT = quotaT-1;
 					if(quota == nbArbres){quotaT = 0;}
 				}
 			}
+		}*/
+		printf("\n on fonctionne ici ?");
+		for(i = 0; i < quotaT; i++)
+		{
+			//printf("\n Start first for loop\n");
+			int correct = 1;
+			for(j = 0; j <= quota; j++)
+			{
+				printf("\t Start second for loop \t");
+				printf("\n cello");
+				main_hgt(mesArbres[j].c_str(), arbresTemp[i].c_str(), matrices);
+				if(matrices[0] > lowLimit && matrices[0] <= highLimit)
+				{ printf("\n At least one good tree"); }
+				else{
+					correct = 0;
+					j = quota +1;
+				}
+			}
+
+			if(correct == 1)
+			{
+				mesArbres.push_back(arbresTemp[i].c_str());
+				allTheTrees.push_back(arbresTemp[i].c_str());
+				quota++;
+				if(quota == nbArbres) { i = quotaT;}
+			}
+			else { arbresAux.push_back(arbresTemp[i].c_str()); 
+				printf("\n on ajoute un mauvais arbre à arbresAux");}
+
+			printf("\n Ok le nouveau quota de bons arbres est : %d\n", quota);
 		}
+		printf("\n QuotaT vaut %d donc on est sorti :) \n", quotaT);
 		arbresTemp.clear();
-		
 	}
-	//printf("\n\t\t quota final = %d\n", quota);
+	printf("\n\t\t quota final = %f   %d\n", matrices[0], quota);
+	printf("\n====================================================\n====================================================");
 
 }
 
@@ -1026,101 +1070,132 @@ int main(int nargs,char ** argv)
 	nb_trees[0] = 19, nb_trees[1] = 9, nb_trees[2] = 6, nb_trees[3] = 4, nb_trees[4] = 3, nb_trees[5] = 1; 
 	float volNoise[10];
 	volNoise[0] = 0.0, volNoise[1] = 0.1, volNoise[2] = 0.25, volNoise[3] = 0.5, volNoise[4] = 0.75;
-	int startL = 0, endL, startN = 1, endN, endC, limSup;
+	int startL = 0, endL, startN = 1, endN, startC, endC, limSup;
 	string refTree;
 	double *mat_dist = new double[4];
 	double lowNoise, highNoise, RF;
 	vector <string> allTrees;
 	FILE * outfile = fopen("test_auto2.txt","w");
-	printf("On arrive ici au moins ?");
+	//printf("On arrive ici au moins ?");
 	char okay = argv[1][1];
 	
 	//Pour la génération de plusieurs matrices
-	int nbTreesTot = 20;
-	/*if(argv[1] == "-m")
+	int nbTreesTot = 15;
+	if(okay == 'm')
 	{
 		// enchainement de cout/cin pour récupérer les infos
-		int nb_Clusters, leaves, noiseLVL;
-		int nb_repet = argv[2];
+		int nb_Clusters, leaves, noiseLvl;
+		int nb_repet = atoi(argv[2]);
 		cout<<"How many clusters ?";
 		cin>>nb_Clusters;
 		cout<<"How many leaves ?";
-		cin>>nb_Feuilles;
-		cout<<"Level of noise ?";
-		cin>>noiseLvl
+		cin>>leaves;
+		cout<<"Level of noise ?  (1 = [0-10], 2 = [10-25], 3 = [25-50], 4 = [50-75]) \nYou cannot have [0-10] noise with 8 leaves.\n";
+		cin>>noiseLvl;
 		lowNoise = volNoise[noiseLvl-1];
 		highNoise = volNoise[noiseLvl];
-		for(m = 1; m <= nb_repet; m++)
+		for(int m = 1; m <= nb_repet; m++)
 		{
-			for(i = 1; i <= nb_Clusters; i++)
+			//cout<<"\nHello :)";
+			//printf("\t what ? %d", nb_Clusters);
+			for(int i = 1; i <= nb_Clusters; i++)
 			{
-				createTree2(nb_Feuilles, 1, "something", refTree);
-				createClusters(refTree, nb_Feuilles, nbTrees, lowNoise, highNoise, allTrees);
+				createTree2(leaves, 1, "something", refTree);
+				printf("\n %s \n", refTree.c_str());
+				createClusters(refTree, leaves, 2, lowNoise, highNoise, allTrees);
 			}
-		}
-	}*/
-
-	if(okay == 'L')
-	{
-		nbFeuilles[0] = atoi(argv[2]);
-		endL = 1;
-		endN = 3;
-		endC = 6;
-	}
-	else if(argv[1] == "C")
-	{
-		nbClusters[0] = atoi(argv[2]);
-		endC = 1;
-		endL = 4;
-		endN = 5;
-	}
-	else if(argv[1] == "-N")
-	{
-		limSup = atoi(argv[2]);
-		volNoise[0] = volNoise[limSup-1];
-		volNoise[1] = volNoise[limSup];
-
-		if(limSup == 1){
-			startL = 1; 
-		}
-		endN = 1;
-		endL = 4;
-		endC = 6;
-	}
-	printf("\n on va checker les arbres de %d à  %d \n", startL, endL);
-
-	for(int a = startL; a < endL; a++)
-	{
-		int nb_Feuilles = nbFeuilles[a];
-		if (nb_Feuilles == 8){ startN = 2;}
-		else{ startN = 1; }
-		for(int b = startN; b < endN; b++)
-		{
-			float lowNoise = volNoise[b-1];
-			float highNoise = volNoise[b];
-			for(int c = 4; c < 6; c++)
+			printf("\n\n");
+			fprintf(outfile, "%d   %d   %d   0   %d", nbTreesTot, leaves, nb_Clusters, noiseLvl);
+			for( int i = 1; i <= nbTreesTot; i++)
 			{
-				int nb_Clusters = nbClusters[c];
-				int nbTrees = nb_trees[c];
-				for(int d = 0; d < nb_Clusters; d++)
-				{
-					createTree2(nb_Feuilles, 0.5, "something", refTree);
-					createClusters(refTree, nb_Feuilles, nbTrees, lowNoise, highNoise, allTrees);
-				}
-				fprintf(outfile, "%d   %d   %d   0   %f", nbTreesTot, nb_Feuilles, nb_Clusters, highNoise*100);
-				for( int i = 1; i <= nbTreesTot; i++)
-				{
-					fprintf(outfile, "\n");
-					//printf("\n\n%s", allTrees[i-1].c_str());
-					for(int j = 1; j <= nbTreesTot; j++)
-					{
-						main_hgt(allTrees[i-1].c_str(), allTrees[j-1].c_str(), mat_dist);
-						RF = mat_dist[0];
-						fprintf(outfile, "%f   ", RF);
-					}
-				}
 				fprintf(outfile, "\n");
-				//fprintf(outfile, "\n %s", refTree.c_str());
+				printf("\n%s", allTrees[i-1].c_str());
+				for(int j = 0; j < nbTreesTot; j++)
+				{
+					main_hgt(allTrees[i-1].c_str(), allTrees[j].c_str(), mat_dist);
+					RF = mat_dist[0];
+					fprintf(outfile, "%f   ", RF);
+				}
+			}
+			allTrees.clear();
+			fprintf(outfile, "\n");
+		}
+	}
+
+	else{
+		if(okay == 'L')
+		{
+			nbFeuilles[0] = atoi(argv[2]);
+			endL = 1;
+			endN = 3;
+			endC = 6;
+		}
+		else if(argv[1] == "C")
+		{
+			nbClusters[0] = atoi(argv[2]);
+			endC = 1;
+			endL = 4;
+			endN = 5;
+		}
+		else if(argv[1] == "-N")
+		{
+			limSup = atoi(argv[2]);
+			volNoise[0] = volNoise[limSup-1];
+			volNoise[1] = volNoise[limSup];
+
+			if(limSup == 1){
+				startL = 1; 
+			}
+			endN = 1;
+			endL = 4;
+			endC = 6;
+		}
+		//printf("\n on va checker les arbres de %d à  %d \n", startL, endL);
+
+		for(int a = startL; a < endL; a++)
+		{
+			int nb_Feuilles = nbFeuilles[a];
+			if (nb_Feuilles == 8){
+				startN = 2;
+				startC = 3;
+			}
+			else if (nb_Feuilles == 16){
+				startC = 2;
+				startN = 1;
+			}
+			else{
+				startC = 0;
+				startN = 1;
+			}
+			for(int b = startN; b < endN; b++)
+			{
+				float lowNoise = volNoise[b-1];
+				float highNoise = volNoise[b];
+				for(int c = 2; c < 5; c++)
+				{
+					int nb_Clusters = nbClusters[c];
+					int nbTrees = nb_trees[c];
+					for(int d = 0; d < nb_Clusters; d++)
+					{
+						createTree2(nb_Feuilles, 0.5, "something", refTree);
+						createClusters(refTree, nb_Feuilles, nbTrees, lowNoise, highNoise, allTrees);
+					}
+					fprintf(outfile, "%d   %d   %d   0   %f", nbTreesTot, nb_Feuilles, nb_Clusters, highNoise*100);
+					for( int i = 1; i <= nbTreesTot; i++)
+					{
+						fprintf(outfile, "\n");
+						//printf("\n\n%s", allTrees[i-1].c_str());
+						for(int j = 1; j <= nbTreesTot; j++)
+						{
+							main_hgt(allTrees[i-1].c_str(), allTrees[j-1].c_str(), mat_dist);
+							RF = mat_dist[0];
+							fprintf(outfile, "%f   ", RF);
+						}
+					}
+					allTrees.clear();
+					fprintf(outfile, "\n");
+					//fprintf(outfile, "\n %s", refTree.c_str());
+				}
 			}
 		}
 	}
