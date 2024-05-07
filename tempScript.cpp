@@ -935,7 +935,7 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 	vector <string> mesArbres;
 	vector <string> arbresAux;
 	vector <string> arbresTemp;
-	int quota = 0, quotaT = 1, x, y, i, j, nb = 0, first = 0, compt;
+	int quota = 0, quotaT = 1, x, y, i, j, nb = 0, first = 0, compt=0;
 	double distancesRF;
 
 	mesArbres.push_back(treeRef);
@@ -945,28 +945,30 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 	x = 0; y = 1;
 	int stop = 5, count = 0;
 	printf("\n\n NEW CLUSTER ! \n");
+	printf("\n low=%f high=%f", lowLimit, highLimit);
 
-	while(quota < nbArbres)
+	while(quota < nbArbres-1)
 	{
 		quotaT = 1;
-		if(quota == x)
+		if(y <= quota)
+		{
+			printf("\n check y %d -- %d \n", y, quota);
+			newTree = mesArbres[y];
+			//printf("\n nouvel arbre %s", newTree.c_str());
+			printf("\n hello !");
+			y++;
+		}
+		else if(x <= compt)
 		{
 			printf("\n check x %d\n", x);
 			newTree = arbresAux[x];
 			printf("\n arbre de X %s", newTree.c_str());
 			x++;
 		}
-		else if(y <= quota)
-		{
-			printf("\n check y \n");
-			newTree = mesArbres[y];
-			y++;
-		}
 		else {
-			printf("\nProblème quelque part :( \n");
+			printf("\n Cluster impossible, we already parsed every tree created. \n");
 			exit(1);
 		}
-		printf("\n yellow");
 		for(i = 1; i < nbSpecies; i++)
 		{
 			for(j = i + 1; j <= nbSpecies; j++)
@@ -974,22 +976,25 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 				nvlArbre = newTree;
 				distancesRF = swapLeafComputeRF(treeRef, nvlArbre, i, j);
 				
+				//printf("\n arbre à comparer %s", nvlArbre.c_str());
+				printf("%f \t", distancesRF);
+				
 				if(distancesRF > lowLimit && distancesRF <= highLimit && std::find(arbresTemp.begin(), arbresTemp.end(), nvlArbre) == arbresTemp.end())
 				{
-					//mesArbres.push_back(nvlArbre);
-					//allTheTrees.push_back(nvlArbre);
 					arbresTemp.push_back(nvlArbre);
 					quotaT++;
-					if(quotaT == nbArbres) { i = j = nbSpecies; }
+					//if(quotaT == nbArbres-1) { i = j = nbSpecies; }
 				}
 				else
 				{
 					arbresAux.push_back(nvlArbre);
+					compt++;
 				}
 			}
 		}
+		printf("quotaT = %d", quotaT);
 
-		compt = 1;
+		//compt = 1;
 		/*while(quotaT > 0)
 		{
 			printf("\n%s\n%s\n\n", mesArbres[compt-1].c_str(), arbresTemp[quotaT-1].c_str());
@@ -1017,41 +1022,56 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 				}
 			}
 		}*/
-		printf("\n on fonctionne ici ?");
+		//printf("\n on fonctionne ici ?");
+
+		int correct = 1;
 		for(i = 0; i < quotaT; i++)
 		{
-			//printf("\n Start first for loop\n");
-			int correct = 1;
+			//int correct = 1;
 			for(j = 0; j <= quota; j++)
 			{
-				printf("\t Start second for loop \t");
-				printf("\n cello");
 				main_hgt(mesArbres[j].c_str(), arbresTemp[i].c_str(), matrices);
+				printf("\n %f", matrices[0]);
 				if(matrices[0] > lowLimit && matrices[0] <= highLimit)
-				{ printf("\n At least one good tree"); }
+				{
+					//if(matrices[0]<=highLimit)
+					//{
+						printf(". donc ça marche quand même !"); correct=1;
+					/*	}
+					else{
+					correct = 0;
+					j = quota +1;}*/
+				}
 				else{
 					correct = 0;
 					j = quota +1;
 				}
+				printf("~+%d+~", correct);
 			}
-
+			printf("~~%d~~", correct);
 			if(correct == 1)
 			{
 				mesArbres.push_back(arbresTemp[i].c_str());
 				allTheTrees.push_back(arbresTemp[i].c_str());
 				quota++;
-				if(quota == nbArbres) { i = quotaT;}
+				printf("~%d~", quota);
+				if(quota >= nbArbres) { i = quotaT;}
 			}
 			else { arbresAux.push_back(arbresTemp[i].c_str()); 
-				printf("\n on ajoute un mauvais arbre à arbresAux");}
+				compt++;
+				correct = 1;
+			}
 
-			printf("\n Ok le nouveau quota de bons arbres est : %d\n", quota);
+			printf("\n Ok le nouveau quota de bons arbres est : %d\n", quota+1);
 		}
-		printf("\n QuotaT vaut %d donc on est sorti :) \n", quotaT);
+		//printf("\n QuotaT vaut %d donc on est sorti :) \n", quotaT);
 		arbresTemp.clear();
 	}
 	printf("\n\t\t quota final = %f   %d\n", matrices[0], quota);
-	printf("\n====================================================\n====================================================");
+	printf("\n=========================================================================\n=========================================================================");
+	arbresTemp.clear();
+	mesArbres.clear();
+	arbresAux.clear();
 
 }
 
@@ -1080,7 +1100,7 @@ int main(int nargs,char ** argv)
 	char okay = argv[1][1];
 	
 	//Pour la génération de plusieurs matrices
-	int nbTreesTot = 15;
+	int nbTreesTot = 10;
 	if(okay == 'm')
 	{
 		// enchainement de cout/cin pour récupérer les infos
@@ -1101,15 +1121,15 @@ int main(int nargs,char ** argv)
 			for(int i = 1; i <= nb_Clusters; i++)
 			{
 				createTree2(leaves, 1, "something", refTree);
-				printf("\n %s \n", refTree.c_str());
-				createClusters(refTree, leaves, 2, lowNoise, highNoise, allTrees);
+				//printf("\n %s \n", refTree.c_str());
+				createClusters(refTree, leaves, 3, lowNoise, highNoise, allTrees);
 			}
 			printf("\n\n");
 			fprintf(outfile, "%d   %d   %d   0   %d", nbTreesTot, leaves, nb_Clusters, noiseLvl);
 			for( int i = 1; i <= nbTreesTot; i++)
 			{
 				fprintf(outfile, "\n");
-				printf("\n%s", allTrees[i-1].c_str());
+				//printf("\n%s", allTrees[i-1].c_str());
 				for(int j = 0; j < nbTreesTot; j++)
 				{
 					main_hgt(allTrees[i-1].c_str(), allTrees[j].c_str(), mat_dist);
