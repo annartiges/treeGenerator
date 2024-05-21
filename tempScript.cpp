@@ -2,7 +2,6 @@
 #include <fstream>
 #include <vector>
 #include <string>
-//#include <boost/regex.hpp>
 
 #include <signal.h>
 #include <stdio.h>
@@ -12,7 +11,7 @@
 #include <string.h>
 #include <sstream>
 #include <algorithm>
-//#include "structures.h"
+#include <time.h>
 #include "hgt_int.cpp"
 
 
@@ -38,7 +37,7 @@ string modifTree (int nbSpecies, string newTree, int i, int j){
 	string specie2 = "";
 	
 	do{
-		//Generate randomly the number of specie I remove in the species tree (This number must be between 1 and nbSpecies
+		//Generate randomly the number of specie I remove in the species tree (This number must be between 1 and nbSpecies)
 		nbSpecie1 = rand() % nbSpecies + 1;
 		specie1 = intToString(nbSpecie1);
 		
@@ -52,7 +51,6 @@ string modifTree (int nbSpecies, string newTree, int i, int j){
 		}
 		
 	}while((newTree.find(specie1)>newTree.length() || newTree.find(specie1)==-1) || nbSpecie2==i || nbSpecie2==j);
-	//printf("\n mais on répète un autre truc là non ? %d %d", nbSpecie1, nbSpecie2);
 	newTree = myreplace(newTree, specie1 ,specie2);
 
 	return newTree;
@@ -220,7 +218,8 @@ void SAVEASNewick2(double *LONGUEUR, long int *ARETE,int nn,const char* t, strin
 		//Tree[i] = Tree[i-1]+1;
 		//Long[i] = Long[i-1];
 	}
-	Tree[root] = 0;/*Tree[Ns+1]=0;*/
+	Tree[root] = 0;
+	/*Tree[Ns+1]=0;*/
 	
 	for (i = 1; i <= Ns+1/*Ns*/; i++)
 	{	
@@ -242,7 +241,8 @@ void SAVEASNewick2(double *LONGUEUR, long int *ARETE,int nn,const char* t, strin
 	
 	/* On compose la chaine parenthesee */
 	string[0] = 0;
-	i = root;/*i=Ns+1;*/
+	i = root;
+	/*i=Ns+1;*/
 	cpt = 0;
 	for (;;)
 	{	
@@ -280,7 +280,6 @@ void SAVEASNewick2(double *LONGUEUR, long int *ARETE,int nn,const char* t, strin
 	}	
 
 	strcat(string,";");
-	//printf("\n %s \n", string);
 	newick = string;
 	//FILE *pt_t = fopen(t,"a+");
 	//fprintf(pt_t,"%s\n",string);
@@ -451,7 +450,8 @@ void tree_generation(double **DA, double **DI, int n, double Sigma)
     	U = 1.0*rand()/RAND_MAX;
     	LON[i] = 1.0*LON[i]*(1.0+0.8*(-log(U)));
     	LON[i] = LON[i]*0.8; ///5.0 ;//0.8
-    	if (LON[i]>2*epsilona) { i++; }/*printf("U=%f LON[%d]=%f \n",U,i,LON[i]);*/
+    	if (LON[i]>2*epsilona) { i++; }
+		/*printf("U=%f LON[%d]=%f \n",U,i,LON[i]);*/
 	}
       
  // Computation of a tree distance matrix (tree metric matrix)
@@ -532,10 +532,13 @@ void tree_generation(double **DA, double **DI, int n, double Sigma)
 //=============================================
 void Tree_edges (double **DI, long int *ARETE, double *LONGUEUR, int n)
 { 
-	struct EDGE { unsigned int U; unsigned int V; double LN;};
-	struct EDGE *Path,*Tree;
-	int i,j,k,p,P,*X;
-	double S,DIS,DIS1,*L,**D;
+	struct EDGE {
+		unsigned int U;
+		unsigned int V;
+		double LN;};
+	struct EDGE *Path, *Tree;
+	int i, j, k, p, P, *X;
+	double S, DIS, DIS1, *L, **D;
  
 	X = (int *)malloc((n+1)*sizeof(int));  
 	L = (double *)malloc((n+1)*sizeof(double));
@@ -544,7 +547,7 @@ void Tree_edges (double **DI, long int *ARETE, double *LONGUEUR, int n)
 
 	D = (double **) malloc((n+1)*sizeof(double*));
 
-	for (i=0;i<=n;i++)
+	for (i = 0; i <= n; i++)
 	{
 		D[i] = (double*)malloc((n+1)*sizeof(double)); 
   
@@ -554,8 +557,9 @@ void Tree_edges (double **DI, long int *ARETE, double *LONGUEUR, int n)
 		}
 	}
 
-	i = 1; j = n;
-	odp1ct(DI,X,&i,&j,n);
+	i = 1;
+	j = n;
+	odp1ct(DI, X, &i, &j, n);
 
 	for (i = 1; i <= n; i++)
 	{ 
@@ -578,27 +582,30 @@ void Tree_edges (double **DI, long int *ARETE, double *LONGUEUR, int n)
 		S = 0.0;
 		i = 0;
 
-		if (DIS>2*epsilona)
+		if(DIS > 2*epsilona)
 		{
-    		while (S<DIS-epsilona)
+    		while(S < DIS-epsilona)
     		{
     			i = i+1;
     			S = S+L[i];
 			}
 		}
-		else { DIS = 0; i = 1; }
+		else {
+			DIS = 0;
+			i = 1;
+		}
   
 		Tree[p+1].U = n+k-1;
 		Tree[p+1].V = Path[i].V;
 		Tree[p+1].LN = S-DIS;
-		if (Tree[p+1].LN<2*epsilona) { Tree[p+1].LN = epsilona;  }
+		if(Tree[p+1].LN<2*epsilona) { Tree[p+1].LN = epsilona;  }
   
-		for (j = i+1; j <= P; j++)
+		for(j = i+1; j <= P; j++)
 		{
 			Tree[p+j-i+1].U = Path[j].U;
 			Tree[p+j-i+1].V = Path[j].V;
 			Tree[p+j-i+1].LN = L[j];
-			if (L[j]<2*epsilona) { L[j] = 2*epsilona; }
+			if(L[j] < 2*epsilona) { L[j] = 2*epsilona; }
 		}
 		
 		p = p+P-i+1;
@@ -610,22 +617,22 @@ void Tree_edges (double **DI, long int *ARETE, double *LONGUEUR, int n)
 		P = i+1;
 	}
  
-	for (i = 1; i <= P; i++) 
+	for(i = 1; i <= P; i++) 
 	{
 		Tree[p+i].U = Path[i].U;
 		Tree[p+i].V = Path[i].V;
 		Tree[p+i].LN = L[i];
 	}
  
-	for (i = 1; i <= 2*n-3; i++)
+	for(i = 1; i <= 2*n-3; i++)
 	{
-		if (fabs(Tree[i].LN-epsilona) <= 2*epsilona) { Tree[i].LN = 0.0; }
+		if(fabs(Tree[i].LN-epsilona) <= 2*epsilona) { Tree[i].LN = 0.0; }
 
 		ARETE[2*i-2] = Tree[i].U;
 		ARETE[2*i-1] = Tree[i].V;
 		LONGUEUR[i-1] = Tree[i].LN;
 		
-		if (LONGUEUR[i-1]<2*epsilona) { LONGUEUR[i-1] = 2*epsilona; }
+		if(LONGUEUR[i-1] < 2*epsilona) { LONGUEUR[i-1] = 2*epsilona; }
 	} 
  
 	free(X);
@@ -633,7 +640,7 @@ void Tree_edges (double **DI, long int *ARETE, double *LONGUEUR, int n)
 	free(L);
 	free(Path);
 
-	for (i=0;i<=n;i++)    
+	for(i = 0; i <= n; i++)    
 	{
 		free(D[i]);
 	}
@@ -645,12 +652,11 @@ void Tree_edges (double **DI, long int *ARETE, double *LONGUEUR, int n)
 //=============================================
 //
 //=============================================
-// CONSIGNE_1 Loop plusieurs fois et supprime création outputfile, remplace par structure -> str
-void createTree2 (int nbSpecies,double l, const char * outputfilename, string& newickRef){	 
-    int i,j;
-    double *LONGUEUR,Sigma;        //= Longueurs des aretes
+void createTree2 (int nbSpecies, double l, const char * outputfilename, string& newickRef){	 
+    int i, j;
+    double *LONGUEUR, Sigma;        //= Longueurs des aretes
     long int *ARETE;               //= Liste des aretes de l'arbre
-    double **DA,**DI;		       //= Distance d'arbre
+    double **DA, **DI;		       //= Distance d'arbre
     
     int n = nbSpecies;
     
@@ -692,7 +698,6 @@ void createTree2 (int nbSpecies,double l, const char * outputfilename, string& n
 	}
     
     double facteur = 1.0/(MaxLong/(2*n-3));
-	//printf("\n check parameters %f %f", facteur, MaxLong);
     MaxLong = 0;
     
     for(int j = 1; j <= 2*n-3; j++){
@@ -700,6 +705,7 @@ void createTree2 (int nbSpecies,double l, const char * outputfilename, string& n
 		MaxLong += LONGUEUR[j-1];
 	} 
 
+	// Information about the tree/branches,use to check data
 	/*printf("\n check parameters 2 %f %f", facteur, MaxLong);
 	for(i=0;i<=2*n;i++){
          printf("\n Longueur %f et Aretes %ld & %ld", LONGUEUR[i], ARETE[2*i], ARETE[2*i+1]);
@@ -777,10 +783,14 @@ string myreplace(string &s, string toReplace,string replaceWith){
     return(s.replace(s.find(toReplace), toReplace.length(), replaceWith));
 }
 
+
+//=============================================
+// First function re-written to generate the clusters
+// Technically works but not very useful for what we needed.
+//=============================================
 void createSubstituteTrees2(string treeRef, int nSpecies, int nbArbres)
 {
 	int nbSpecies = nSpecies;
-	//double distMax = 2*nbSpecies-6;
 	double dix = 0.10, vingtCinq = 0.25, cinquante = 0.50, soixanteQuinze = 0.75;
 	int quota0 = 0, quota10 = 0, quota25 = 0, quota50 = 0, quota75 = 0, quotaMax = 0;
 	int nbEspPart = 9;
@@ -842,7 +852,6 @@ void createSubstituteTrees2(string treeRef, int nSpecies, int nbArbres)
 			for (int j = (i+1); j <= nbSpecies; j++)
 			{
 				distancesRF = 0;
-				//printf("\n normalement on rentre ici");
 				if(quota0 <= nbEspPart || quota10 <= nbEspPart || quota25 <= nbEspPart || quota50 <= nbEspPart || quota75 <= nbEspPart)
 				{
 					newTree = treeRef;
@@ -862,9 +871,8 @@ void createSubstituteTrees2(string treeRef, int nSpecies, int nbArbres)
 					{
 						newTree = myreplace(newTree, fakeSpecie2 ,fakeSpecie1);
 					}
-					//nvlArbre = treeRef;
+					
 					distancesRF = swapLeafComputeRF(treeRef, newTree, i, j);
-					//newTree = nvlArbre;
 					newTree = myreplace(newTree, filling ,trueSpecie2);
 					main_hgt(treeRef, newTree, mat_distances);
 					distancesRF = mat_distances[0];
@@ -918,23 +926,20 @@ void createSubstituteTrees2(string treeRef, int nSpecies, int nbArbres)
 			}
 		}					
 	}
-	if(std::find(mesTrees10.begin(), mesTrees10.end(), treeRef) != mesTrees10.end()) {printf("\nhaha");}
-	
-	//printf("\n okay donc les résultats sont : Quota0=%d; Quota10=%d; Quota25=%d; Quota50=%d; Quota75=%d; QuotaMax=%d", quota0, quota10, quota25, quota50, quota75, quotaMax);
 }
 
 void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit, double highLimit, vector <string>& allTheTrees)
 {
-	int nbEspPart = 9;
+	int nbEspPart = 9, randomLeaf1, randomLeaf2;
 	double pLeavesAbsent = 0.25;
 	double *matrices = new double[4];
 	double nbEspSupp = (double(nbSpecies)*double(pLeavesAbsent))/100.0;
 	nbEspSupp = ceil(nbEspSupp);
 
 	string newTree, nvlArbre;
-	vector <string> mesArbres;
-	vector <string> arbresAux;
-	vector <string> arbresTemp;
+	vector <string> mesArbres;		// List of trees making up a cluster, this list will be added to the global list of trees "allTheTrees"
+	vector <string> arbresAux;		// List of all trees generated with a noise outside of the selected range
+	vector <string> arbresTemp;		// List of trees potentially suitable for the cluster
 	int quota = 0, quotaT = 1, x, y, i, j, nb = 0, first = 0, compt=0;
 	double distancesRF;
 
@@ -944,131 +949,102 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 	arbresTemp.push_back(treeRef);
 	x = 0; y = 1;
 	int stop = 5, count = 0;
-	printf("\n\n NEW CLUSTER ! \n");
-	printf("\n low=%f high=%f", lowLimit, highLimit);
 
-	while(quota < nbArbres-1)
+	while(quota < nbArbres)
 	{
 		quotaT = 1;
 		if(y <= quota)
 		{
-			printf("\n check y %d -- %d \n", y, quota);
 			newTree = mesArbres[y];
-			//printf("\n nouvel arbre %s", newTree.c_str());
-			printf("\n hello !");
 			y++;
 		}
 		else if(x <= compt)
 		{
-			printf("\n check x %d\n", x);
 			newTree = arbresAux[x];
-			printf("\n arbre de X %s", newTree.c_str());
 			x++;
 		}
 		else {
 			printf("\n Cluster impossible, we already parsed every tree created. \n");
 			exit(1);
 		}
-		for(i = 1; i < nbSpecies; i++)
+
+		// We generate every possible tree from a "reference" tree
+		if(nbSpecies < 25)
 		{
-			for(j = i + 1; j <= nbSpecies; j++)
+			for(i = 1; i < nbSpecies; i++)
 			{
-				nvlArbre = newTree;
-				distancesRF = swapLeafComputeRF(treeRef, nvlArbre, i, j);
-				
-				//printf("\n arbre à comparer %s", nvlArbre.c_str());
-				printf("%f \t", distancesRF);
-				
-				if(distancesRF > lowLimit && distancesRF <= highLimit && std::find(arbresTemp.begin(), arbresTemp.end(), nvlArbre) == arbresTemp.end())
+				for(j = i + 1; j <= nbSpecies; j++)
 				{
-					arbresTemp.push_back(nvlArbre);
-					quotaT++;
-					//if(quotaT == nbArbres-1) { i = j = nbSpecies; }
-				}
-				else
-				{
-					arbresAux.push_back(nvlArbre);
-					compt++;
+					nvlArbre = newTree;
+					distancesRF = swapLeafComputeRF(treeRef, nvlArbre, i, j);
+				
+					if(distancesRF > lowLimit && distancesRF <= highLimit && std::find(arbresTemp.begin(), arbresTemp.end(), nvlArbre) == arbresTemp.end())
+					{
+						arbresTemp.push_back(nvlArbre);
+						quotaT++;
+					}
+					else
+					{
+						arbresAux.push_back(nvlArbre);
+						compt++;
+					}
 				}
 			}
 		}
-		printf("quotaT = %d", quotaT);
-
-		//compt = 1;
-		/*while(quotaT > 0)
+		else
 		{
-			printf("\n%s\n%s\n\n", mesArbres[compt-1].c_str(), arbresTemp[quotaT-1].c_str());
-			//printf("\n On rentre dans la boucle ?");
-			main_hgt(mesArbres[compt-1].c_str(), arbresTemp[quotaT-1].c_str(), matrices);
-			if(matrices[0] == 0 || matrices[0] > highLimit || matrices[0] < lowLimit){
-				arbresAux.push_back(arbresTemp[quotaT-1]);
-				compt = 1;
-				quotaT = quotaT-1;
-				printf("BAD ? %f  %d\t\n", matrices[0], quotaT);
-			}
-			else if(matrices[0]<=highLimit){
-				compt++;
-				printf("GOOD ? %f %d \t %s \n", matrices[0], compt, "hello");
-				if(compt >= quota){
-					mesArbres.push_back(arbresTemp[quotaT-1].c_str());
-					allTheTrees.push_back(arbresTemp[quotaT-1].c_str());
+			// Random selection of 10 leaves and permutation with all leaves of higher number
 
-					//printf("\n%s\n", arbresTemp[quotaT-1].c_str());
-					quota++;
-					compt = 1;
-					printf("QUOTA=%d \n\n", quotaT);
-					quotaT = quotaT-1;
-					if(quota == nbArbres){quotaT = 0;}
+			for(i = 0; i < 10; i++)
+			{
+				randomLeaf1 = rand()%nbSpecies + 1;
+				for(j = randomLeaf1+1; j <= nbSpecies; j++)
+				{
+					nvlArbre = newTree;
+					distancesRF = swapLeafComputeRF(treeRef, nvlArbre, randomLeaf1, j);
+				
+					if(distancesRF > lowLimit && distancesRF <= highLimit && std::find(arbresTemp.begin(), arbresTemp.end(), nvlArbre) == arbresTemp.end())
+					{
+						arbresTemp.push_back(nvlArbre);
+						quotaT++;
+					}
+					else
+					{
+						arbresAux.push_back(nvlArbre);
+						compt++;
+					}
 				}
 			}
-		}*/
-		//printf("\n on fonctionne ici ?");
+		}
 
 		int correct = 1;
 		for(i = 0; i < quotaT; i++)
 		{
-			//int correct = 1;
 			for(j = 0; j <= quota; j++)
 			{
 				main_hgt(mesArbres[j].c_str(), arbresTemp[i].c_str(), matrices);
-				printf("\n %f", matrices[0]);
 				if(matrices[0] > lowLimit && matrices[0] <= highLimit)
 				{
-					//if(matrices[0]<=highLimit)
-					//{
-						printf(". donc ça marche quand même !"); correct=1;
-					/*	}
-					else{
-					correct = 0;
-					j = quota +1;}*/
 				}
 				else{
 					correct = 0;
 					j = quota +1;
 				}
-				printf("~+%d+~", correct);
 			}
-			printf("~~%d~~", correct);
 			if(correct == 1)
 			{
 				mesArbres.push_back(arbresTemp[i].c_str());
 				allTheTrees.push_back(arbresTemp[i].c_str());
 				quota++;
-				printf("~%d~", quota);
 				if(quota >= nbArbres) { i = quotaT;}
 			}
 			else { arbresAux.push_back(arbresTemp[i].c_str()); 
 				compt++;
 				correct = 1;
 			}
-
-			printf("\n Ok le nouveau quota de bons arbres est : %d\n", quota+1);
 		}
-		//printf("\n QuotaT vaut %d donc on est sorti :) \n", quotaT);
 		arbresTemp.clear();
 	}
-	printf("\n\t\t quota final = %f   %d\n", matrices[0], quota);
-	printf("\n=========================================================================\n=========================================================================");
 	arbresTemp.clear();
 	mesArbres.clear();
 	arbresAux.clear();
@@ -1090,74 +1066,74 @@ int main(int nargs,char ** argv)
 	nb_trees[0] = 19, nb_trees[1] = 9, nb_trees[2] = 6, nb_trees[3] = 4, nb_trees[4] = 3, nb_trees[5] = 1; 
 	float volNoise[10];
 	volNoise[0] = 0.0, volNoise[1] = 0.1, volNoise[2] = 0.25, volNoise[3] = 0.5, volNoise[4] = 0.75;
-	int startL = 0, endL, startN = 1, endN, startC, endC, limSup;
+	int startL = 0, endL, startN = 1, endN, startC, endC, limSup, nbtree, volume;
 	string refTree;
 	double *mat_dist = new double[4];
 	double lowNoise, highNoise, RF;
 	vector <string> allTrees;
 	FILE * outfile = fopen("test_auto2.txt","w");
-	//printf("On arrive ici au moins ?");
-	char okay = argv[1][1];
+	char option = argv[1][1];
 	
 	//Pour la génération de plusieurs matrices
-	int nbTreesTot = 10;
-	if(okay == 'm')
+	int nbTreesTot = 20;
+	if(option == 'm')
 	{
 		// enchainement de cout/cin pour récupérer les infos
 		int nb_Clusters, leaves, noiseLvl;
 		int nb_repet = atoi(argv[2]);
 		cout<<"How many clusters ?";
 		cin>>nb_Clusters;
+		cout<<"How many trees by cluster ?";
+		cin>>nbtree;
 		cout<<"How many leaves ?";
 		cin>>leaves;
 		cout<<"Level of noise ?  (1 = [0-10], 2 = [10-25], 3 = [25-50], 4 = [50-75]) \nYou cannot have [0-10] noise with 8 leaves.\n";
 		cin>>noiseLvl;
+		if(noiseLvl == 1){volume = 10;}
+		else { volume = 25 * (noiseLvl-1);}
 		lowNoise = volNoise[noiseLvl-1];
 		highNoise = volNoise[noiseLvl];
 		for(int m = 1; m <= nb_repet; m++)
 		{
-			//cout<<"\nHello :)";
-			//printf("\t what ? %d", nb_Clusters);
+
+			printf("\nRepetition n°%d\n", m);
 			for(int i = 1; i <= nb_Clusters; i++)
 			{
 				createTree2(leaves, 1, "something", refTree);
-				//printf("\n %s \n", refTree.c_str());
-				createClusters(refTree, leaves, 3, lowNoise, highNoise, allTrees);
+				createClusters(refTree, leaves, nbtree-1, lowNoise, highNoise, allTrees);
 			}
-			printf("\n\n");
-			fprintf(outfile, "%d   %d   %d   0   %d", nbTreesTot, leaves, nb_Clusters, noiseLvl);
+			fprintf(outfile, "%d\t%d\t%d\t0\t%d", nbTreesTot, leaves, nb_Clusters, volume);
 			for( int i = 1; i <= nbTreesTot; i++)
 			{
 				fprintf(outfile, "\n");
-				//printf("\n%s", allTrees[i-1].c_str());
 				for(int j = 0; j < nbTreesTot; j++)
 				{
 					main_hgt(allTrees[i-1].c_str(), allTrees[j].c_str(), mat_dist);
 					RF = mat_dist[0];
-					fprintf(outfile, "%f   ", RF);
+					fprintf(outfile, "%f\t", RF);
 				}
 			}
 			allTrees.clear();
-			fprintf(outfile, "\n");
+			fprintf(outfile, "\n\n");
 		}
 	}
 
 	else{
-		if(okay == 'L')
+		if(option == 'L')
 		{
 			nbFeuilles[0] = atoi(argv[2]);
 			endL = 1;
 			endN = 3;
 			endC = 6;
 		}
-		else if(argv[1] == "C")
+		else if(option == 'C')
 		{
 			nbClusters[0] = atoi(argv[2]);
 			endC = 1;
 			endL = 4;
 			endN = 5;
 		}
-		else if(argv[1] == "-N")
+		else if(otpion == 'N')
 		{
 			limSup = atoi(argv[2]);
 			volNoise[0] = volNoise[limSup-1];
@@ -1170,7 +1146,6 @@ int main(int nargs,char ** argv)
 			endL = 4;
 			endC = 6;
 		}
-		//printf("\n on va checker les arbres de %d à  %d \n", startL, endL);
 
 		for(int a = startL; a < endL; a++)
 		{
@@ -1181,7 +1156,7 @@ int main(int nargs,char ** argv)
 			}
 			else if (nb_Feuilles == 16){
 				startC = 2;
-				startN = 1;
+				startN = 3;
 			}
 			else{
 				startC = 0;
@@ -1204,7 +1179,6 @@ int main(int nargs,char ** argv)
 					for( int i = 1; i <= nbTreesTot; i++)
 					{
 						fprintf(outfile, "\n");
-						//printf("\n\n%s", allTrees[i-1].c_str());
 						for(int j = 1; j <= nbTreesTot; j++)
 						{
 							main_hgt(allTrees[i-1].c_str(), allTrees[j-1].c_str(), mat_dist);
@@ -1214,53 +1188,11 @@ int main(int nargs,char ** argv)
 					}
 					allTrees.clear();
 					fprintf(outfile, "\n");
-					//fprintf(outfile, "\n %s", refTree.c_str());
 				}
 			}
 		}
 	}
 	
-
-
-	/*if(noiseLvl == 10)
-	{
-		lowNoise = 0;
-		highNoise = 0.10;
-	}
-	else if(noiseLvl == 25)
-	{
-		lowNoise = 0.10;
-		highNoise = 0.25;
-	}
-	else if(noiseLvl == 50)
-	{
-		lowNoise = 0.25;
-		highNoise = 0.50;
-	}
-	else if(noiseLvl == 75)
-	{
-		lowNoise = 0.50;
-		highNoise = 0.75;
-	}
-
-	fprintf(outfile, "%d   %d   %d   0   %d", nbTreesTot, nbSpecies, nb_Clusters, noiseLvl);
-
-	for(int i = 1; i <= nb_Clusters; i++) {
-		createTree2(nbSpecies, 0.5, "something", refTree);
-		createClusters(refTree, nbSpecies, nbTrees, lowNoise, highNoise, allTrees);
-	}
-
-	for( int i = 1; i <= nbTreesTot; i++)
-	{
-		fprintf(outfile, "\n");
-		//printf("\n\n%s", allTrees[i-1].c_str());
-		for(int j = 1; j <= nbTreesTot; j++)
-		{
-			main_hgt(allTrees[i-1].c_str(), allTrees[j-1].c_str(), mat_dist);
-			RF = mat_dist[0];
-			fprintf(outfile, "%f   ", RF);
-		}
-	}*/
 	fprintf(outfile, "\n");
 	fclose(outfile);
 	printf("\n");
