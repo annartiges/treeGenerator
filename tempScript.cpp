@@ -123,7 +123,7 @@ void odp1ct(double **D, int *X, int *i1, int *j1, int n)
 //=============================================
 //
 //=============================================
-void SAVEASNewick2(double *LONGUEUR, long int *ARETE,int nn,const char* t, string& newick) 
+void SAVEASNewick2(double *LONGUEUR, long int *ARETE,int nn, string& newick) 
 {
 	int n,root,a;
 	int Ns;
@@ -716,7 +716,7 @@ void createTree2 (int nbSpecies, double l, const char * outputfilename, string& 
     //=============================================================================
 	//= SAUVEGARDE DE L'ARBRE
 	//=============================================================================
-    SAVEASNewick2(LONGUEUR,ARETE,n, outputfilename, newickRef);
+    SAVEASNewick2(LONGUEUR,ARETE,n, newickRef);
 	
 	for (i = 0; i <= n; i++){
 		free(DI[i]);
@@ -940,7 +940,7 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 	vector <string> mesArbres;		// List of trees making up a cluster, this list will be added to the global list of trees "allTheTrees"
 	vector <string> arbresAux;		// List of all trees generated with a noise outside of the selected range
 	vector <string> arbresTemp;		// List of trees potentially suitable for the cluster
-	int quota = 0, quotaT = 1, x, y, i, j, nb = 0, first = 0, compt=0;
+	int quota = 0, quotaT, x, y, i, j, compt=0;
 	double distancesRF;
 
 	mesArbres.push_back(treeRef);
@@ -948,7 +948,6 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 	allTheTrees.push_back(treeRef);
 	arbresTemp.push_back(treeRef);
 	x = 0; y = 1;
-	int stop = 5, count = 0;
 
 	while(quota < nbArbres)
 	{
@@ -1023,10 +1022,8 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 			for(j = 0; j <= quota; j++)
 			{
 				main_hgt(mesArbres[j].c_str(), arbresTemp[i].c_str(), matrices);
-				if(matrices[0] > lowLimit && matrices[0] <= highLimit)
+				if(matrices[0] <= lowLimit || matrices[0] > highLimit)
 				{
-				}
-				else{
 					correct = 0;
 					j = quota +1;
 				}
@@ -1048,14 +1045,35 @@ void createClusters(string treeRef, int nbSpecies, int nbArbres, double lowLimit
 	arbresTemp.clear();
 	mesArbres.clear();
 	arbresAux.clear();
-
 }
+
 
 int main(int nargs,char ** argv)
 {
-	//if(nargs == 1){ printf("nope !"); exit(-1);}
-	//int nb_Clusters = atoi(argv[1]), nb_Feuilles = atoi(argv[2]), noiseLvl = atoi(argv[3]), nbTrees = atoi(argv[4]);
-	//int nbTreesTot = (nbTrees+1) * nb_Clusters;
+	if(nargs < 3) {
+        printf("\nWrong command format. Format must be :\n\t > ./treeGenerator -[m/L/C/N] x");
+		printf("\n\t-m : generate x matrices with the same parameters.\n");
+		printf("\nThe following options will generate every combinations possible with one fixed parameter. (Please be aware that they aren't fully operational yet)\n");
+        printf("\t-L : fixed parameter = tree with x leaves\n\t-C : fixed parameter = clusters of size x\n\t-N :fixed parameter = noise range x (1 = [0-10], 2 = [10-25], 3 = [25-50], 4 = [50-75]) \n");
+		
+		exit(1);
+    }
+
+
+	vector <string> allTrees;
+	FILE * outfile = fopen("output_file.txt","w");
+	char option = argv[1][1];
+	float volNoise[10];
+	volNoise[0] = 0.0, volNoise[1] = 0.1, volNoise[2] = 0.25, volNoise[3] = 0.5, volNoise[4] = 0.75;
+	int nbTree, volume, limSup;
+	string refTree;
+	double *mat_dist = new double[4];
+	double lowNoise, highNoise, RF;
+
+	//=============
+	// Parameters specific to the 'L/C/N' options
+	//=============
+	int startL = 0, endL, startN = 1, endN, startC, endC;
 	int nbarbres[10];
 	int nbFeuilles[10];
 	int nbClusters[10];
@@ -1063,17 +1081,9 @@ int main(int nargs,char ** argv)
 	nbarbres[0] = 19, nbarbres[1] = 9, nbarbres[2] = 6, nbarbres[3] = 4, nbarbres[4] = 3, nbarbres[5] = 1;
 	nbFeuilles[0] = 8, nbFeuilles[1] = 16, nbFeuilles[2] = 32, nbFeuilles[3] = 64;
 	nbClusters[0] = 1, nbClusters[1] = 2, nbClusters[2] = 3, nbClusters[3] = 4, nbClusters[4] = 5, nbClusters[5] = 10;
-	nb_trees[0] = 19, nb_trees[1] = 9, nb_trees[2] = 6, nb_trees[3] = 4, nb_trees[4] = 3, nb_trees[5] = 1; 
-	float volNoise[10];
-	volNoise[0] = 0.0, volNoise[1] = 0.1, volNoise[2] = 0.25, volNoise[3] = 0.5, volNoise[4] = 0.75;
-	int startL = 0, endL, startN = 1, endN, startC, endC, limSup, nbtree, volume;
-	string refTree;
-	double *mat_dist = new double[4];
-	double lowNoise, highNoise, RF;
-	vector <string> allTrees;
-	FILE * outfile = fopen("test_auto2.txt","w");
-	char option = argv[1][1];
-	
+	nb_trees[0] = 19, nb_trees[1] = 9, nb_trees[2] = 6, nb_trees[3] = 4, nb_trees[4] = 3, nb_trees[5] = 1;
+
+
 	//Pour la génération de plusieurs matrices
 	int nbTreesTot = 20;
 	if(option == 'm')
@@ -1084,15 +1094,18 @@ int main(int nargs,char ** argv)
 		cout<<"How many clusters ?";
 		cin>>nb_Clusters;
 		cout<<"How many trees by cluster ?";
-		cin>>nbtree;
+		cin>>nbTree;
 		cout<<"How many leaves ?";
 		cin>>leaves;
 		cout<<"Level of noise ?  (1 = [0-10], 2 = [10-25], 3 = [25-50], 4 = [50-75]) \nYou cannot have [0-10] noise with 8 leaves.\n";
 		cin>>noiseLvl;
+
 		if(noiseLvl == 1){volume = 10;}
 		else { volume = 25 * (noiseLvl-1);}
 		lowNoise = volNoise[noiseLvl-1];
 		highNoise = volNoise[noiseLvl];
+		createTree2(leaves, 1, "something", refTree);
+
 		for(int m = 1; m <= nb_repet; m++)
 		{
 
@@ -1100,8 +1113,12 @@ int main(int nargs,char ** argv)
 			for(int i = 1; i <= nb_Clusters; i++)
 			{
 				createTree2(leaves, 1, "something", refTree);
-				createClusters(refTree, leaves, nbtree-1, lowNoise, highNoise, allTrees);
+				createClusters(refTree, leaves, nbTree-1, lowNoise, highNoise, allTrees);
 			}
+
+			//======================
+			//Writing the output file
+			//======================
 			fprintf(outfile, "%d\t%d\t%d\t0\t%d", nbTreesTot, leaves, nb_Clusters, volume);
 			for( int i = 1; i <= nbTreesTot; i++)
 			{
@@ -1119,6 +1136,15 @@ int main(int nargs,char ** argv)
 	}
 
 	else{
+        printf("\nhello \n");
+        exit(1);
+		/*
+
+		// The idea is to fix a parameter and then create all the possible combinations with the other parameters.
+		// We wanted to do this with trees with 8/16/32/64 leaves and clusters of 20/10/5/4/2 trees. However with 8 and 16 leaves you cannot create clusters of more than 3 trees with low noise
+		// This need to be revised a bit but should technically work.
+		//
+
 		if(option == 'L')
 		{
 			nbFeuilles[0] = atoi(argv[2]);
@@ -1175,7 +1201,10 @@ int main(int nargs,char ** argv)
 						createTree2(nb_Feuilles, 0.5, "something", refTree);
 						createClusters(refTree, nb_Feuilles, nbTrees, lowNoise, highNoise, allTrees);
 					}
-					fprintf(outfile, "%d   %d   %d   0   %f", nbTreesTot, nb_Feuilles, nb_Clusters, highNoise*100);
+
+					if(noiseLvl == 1){volume = 10;}
+					else { volume = 25 * (noiseLvl-1);}
+					fprintf(outfile, "%d   %d   %d   0   %f", nbTreesTot, nb_Feuilles, nb_Clusters, volume);
 					for( int i = 1; i <= nbTreesTot; i++)
 					{
 						fprintf(outfile, "\n");
@@ -1191,6 +1220,7 @@ int main(int nargs,char ** argv)
 				}
 			}
 		}
+		*/
 	}
 	
 	fprintf(outfile, "\n");

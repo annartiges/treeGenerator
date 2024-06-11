@@ -739,18 +739,6 @@ void computeCriteria(double ** Matrix1, double ** Matrix2, int size,struct CRITE
 	//= robinson and foulds
 	m = Bipartition_Table_rf(Matrix1,aCrit->B,aCrit->PLACE,size);
 	mI = Bipartition_Table_rf(Matrix2,aCrit->BI,aCrit->PLACEI,size);
-
-	/*for(int k=1; k<=m; k++){
-		for(int l=1; l<=size; l++){printf("%d \t", aCrit->B[aCrit->PLACE[k]][l]);}
-		printf("\n");
-	}
-	printf("\nDeuxième matrice\n");
-
-	for(int k=1; k<=mI; k++){
-		for(int l=1; l<=size; l++){printf("%d \t", aCrit->BI[aCrit->PLACEI[k]][l]);}
-		printf("\n");
-	}*/
-	//printf("\n m%d et mI%d", m, mI);
 	RF = Table_Comparaison_rf(aCrit->B,aCrit->BI,aCrit->PLACE,aCrit->PLACEI,m,mI,size);
 
 	//= least-squares
@@ -775,7 +763,6 @@ void computeCriteria(double ** Matrix1, double ** Matrix2, int size,struct CRITE
 	aCrit->BD = BD;
 	aCrit->RF = RF;
 	aCrit->QD = QD;
-	//printf(" Dans la fonction computeCriteria on a %lf\n\n", RF);
 
 }
 
@@ -1792,8 +1779,7 @@ int readInputFile(string tree1, string tree2, const char *tmpFile, struct InputT
  	filtrerMatrice(speciesTree_t->Input,geneTree_t->Input,speciesTree_t->SpeciesName,geneTree_t->SpeciesName,speciesTree_t->size,geneTree_t->size,fichier_erreur);
 
 	if((finalTaille=ecrireMatrice(speciesTree_t->Input,tmpFile,speciesTree_t->size,speciesTree_t->SpeciesName)) == -1)
-		{ printf("ça déconne !!"); return -2; }
-	//printf("\n okay what the hell ?");
+		{ printf("ERROR!!"); return -2; }
 	ajouterMatriceGene(geneTree_t->Input,tmpFile,geneTree_t->size,geneTree_t->SpeciesName);
 	//EcrireMatrice(tmpfile, speciesTree_t->Input, speciesTree_t->SpeciesName, speciesTree-t->size)
 	
@@ -3271,7 +3257,7 @@ int readInput(int Type, const char *file, struct InputTree * aTree){
 	}
 	
 	//#### T'es obligée de passer par la boucle for de "species" même si tu regardes le deuxième arbre pour passer toute la première matrice.
-	//#### Oui c'est con mais apparement c'est le seul moyen d'accéder à la deuxième matrice :)
+	//#### Oui ça à l'air pas tip-top mais apparement c'est le seul moyen d'accéder correctement à la deuxième matrice :)
 
 	//= read gene tree
 	if(Type == GENE)
@@ -3280,12 +3266,10 @@ int readInput(int Type, const char *file, struct InputTree * aTree){
 		{
 			fscanf(in,"%s",name);
 			strcpy(aTree->SpeciesName[i+1],name);
-			//printf("\ngene :%s \n", name);
 		
 		for(j = 0; j < size; j++)
 		{
 			fscanf(in,"%lf",&val);
-			//printf("\t What %lf", val);
 			aTree->Input[i][j] = val;
 		}	
 	}

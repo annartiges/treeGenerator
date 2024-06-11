@@ -36,12 +36,13 @@
 //unsigned int n;
 FILE* Output1;
 int a;
+//int FAIL = -1;
 
 /* Function's Propotypes */
 
-void odp(double**, int*, int*, int*, int n);
-int Bipartition_Table(double**, int**, int*, int n);
-int Table_Comparaison(int**, int**, int*, int*, int, int, int n);
+void odp_rf(double**, int*, int*, int*, int n);
+int Bipartition_Table_rf(double**, int**, int*, int n);
+int Table_Comparaison_rf(int**, int**, int*, int*, int, int, int n);
 
 
 int nbSpeciesPhylip(const char* fichier) {
@@ -78,7 +79,7 @@ int fileInNewickFormat(char* fichier) {
 	else return 0;
 
 }
-void filtrerMatrice2(double** dissSpecies, double** dissGene, char** nomsSpecies, char** nomsGene, int nbSpecies, int nbGene, char* fichier) {
+void filtrerMatrice2_rf(double** dissSpecies, double** dissGene, char** nomsSpecies, char** nomsGene, int nbSpecies, int nbGene, char* fichier) {
 
 	int i, j, temoin;
 	/*FILE * out;
@@ -92,28 +93,21 @@ void filtrerMatrice2(double** dissSpecies, double** dissGene, char** nomsSpecies
 
 	*/
 	for (i = 1; i <= nbSpecies; i++) {
-		//printf("\n%s -",nomsSpecies[i]);
 		temoin = 0;
 		for (j = 1; j <= nbGene; j++) {
-			//printf(" %s",nomsGene[j]);
 			if (strcmp(nomsSpecies[i], nomsGene[j]) == 0)
 				temoin = 1;
 		}
 		if (temoin == 0) {
-			//fprintf(out,"\nSpecies:%s",nomsSpecies[i]);
 			for (j = 1; j <= nbSpecies; j++) {
 				dissSpecies[i][j] = dissSpecies[j][i] = -1;
 			}
 			strcpy(nomsSpecies[i], "");
 		}
 	}
-	//printf("==============");
 	for (i = 1; i <= nbGene; i++) {
-		//printf("\n%s -",nomsGene[i]);
 		temoin = 0;
 		for (j = 1; j <= nbSpecies; j++) {
-			//	printf(" %s",nomsSpecies[j]); 	
-				//if(strlen(nomsSpecies[j]) > 1) 
 			if (strcmp(nomsSpecies[j], nomsGene[i]) == 0)
 				temoin = 1;
 		}
@@ -129,21 +123,17 @@ void filtrerMatrice2(double** dissSpecies, double** dissGene, char** nomsSpecies
 	//fclose(out);
 }
 
-void filtrerMatrice(double** dissSpecies, double** dissGene, char** nomsSpecies, char** nomsGene, int nbSpecies, int nbGene) {
+void filtrerMatrice_rf(double** dissSpecies, double** dissGene, char** nomsSpecies, char** nomsGene, int nbSpecies, int nbGene) {
 
 	int i, j, temoin;
 
-	//printf("\nn=%d",nbSpecies);
 	for (i = 1; i <= nbSpecies; i++) {
-		//	printf("\n%s -",nomsSpecies[i-1]);
 		temoin = 0;
 		for (j = 1; j <= nbGene; j++) {
-			//printf(" %s",nomsGene[j-1]);
 			if (strcmp(nomsSpecies[i - 1], nomsGene[j - 1]) == 0)
 				temoin = 1;
 		}
 		if (temoin == 0) {
-			//		printf("*");
 			for (j = 1; j <= nbSpecies; j++) {
 				//dissSpecies[i+1][j+1] = dissSpecies[j+1][i+1] = -1;
 				dissSpecies[i][j] = dissSpecies[j][i] = -1;
@@ -152,18 +142,13 @@ void filtrerMatrice(double** dissSpecies, double** dissGene, char** nomsSpecies,
 		}
 	}
 
-	//	printf("\n\nn=%d",nbGene);
 	for (i = 1; i <= nbGene; i++) {
-		//		printf("\n%s -",nomsGene[i-1]);
 		temoin = 0;
-		for (j = 1; j <= nbSpecies; j++) {
-			//	printf(" %s",nomsSpecies[j]);
-			//	if(strlen(nomsSpecies[j]) > 1) 
+		for (j = 1; j <= nbSpecies; j++) { 
 			if (strcmp(nomsSpecies[j - 1], nomsGene[i - 1]) == 0)
 				temoin = 1;
 		}
 		if (temoin == 0) {
-			//		printf("*");
 			for (j = 1; j <= nbGene; j++) {
 				//dissGene[i+1][j+1] = dissGene[j+1][i+1] = -1;
 				dissGene[i][j] = dissGene[j][i] = -1;
@@ -317,13 +302,13 @@ void TreeMatrix(double** DISS, long int* ARETE, double* LONGUEUR, int n, int kt)
 			}
 
 	//	afficherMatriceDouble(DISS,n);
-//			free(Adjacence);
-/*	for(i=1;i<=2*n-2;i++)
+	//			free(Adjacence);
+	/*	for(i=1;i<=2*n-2;i++)
 		for(j=1;j<=2*n-2;j++)
 			DISS[i-1][j-1] = DISS[i][j];*/
 }
 
-static void xtoa(unsigned long val, char* buf, unsigned radix, int is_neg) {
+static void xtoa_rf(unsigned long val, char* buf, unsigned radix, int is_neg) {
 	char* p;                /* pointer to traverse string */
 	char* firstdig;         /* pointer to first digit */
 	char temp;              /* temp char */
@@ -369,9 +354,9 @@ and return pointer to buffer. */
 
 char* itoa(int val, char* buf, int radix) {
 	if (radix == 10 && val < 0)
-		xtoa((unsigned long)val, buf, radix, 1);
+		xtoa_rf((unsigned long)val, buf, radix, 1);
 	else
-		xtoa((unsigned long)(unsigned int)val, buf, radix, 0);
+		xtoa_rf((unsigned long)(unsigned int)val, buf, radix, 0);
 	return buf;
 }
 
@@ -389,7 +374,7 @@ int lectureNewick(const char* fichier, long int* ARETE, double* LONGUEUR, char**
 	// Elmaestro
 	//printf("\nlecture Newick : ");
 	// TODO: Add your command handler code here
-	int FAIL = -1;
+	//int FAIL = -1;
 	int i, j, j1, k, a, a1, a2, a3, VertexNumber, numero;
 	char symbol, * string, * string1, * string2/* *string3,c ,**Et*/;
 	int taxaPos; // le nombre de taxas recupéré
@@ -439,7 +424,7 @@ int lectureNewick(const char* fichier, long int* ARETE, double* LONGUEUR, char**
 	if (i <= 2 * n - 3)(*kt) = i;
 	else (*kt) = 2 * n - 3;
 
-	if (i == 0) { printf("Incorrect Newick file format. Edge lengths must be indicated after a ':' characters."); return FAIL; }
+	if (i == 0) { printf("Incorrect Newick file format. Edge lengths must be indicated after a ':' characters. shalala"); return FAIL; }
 
 	if ((i > 2 * n - 3) || (i < n)) {
 		//printf("Unable to read your input data, please check it and try again...");
@@ -755,7 +740,7 @@ int lectureNewick(const char* fichier, long int* ARETE, double* LONGUEUR, char**
 
 	//=== on teste si il y a un noeud de degre 2 et un noeud de degre 1
 
-/*	printf("\nn=%d",n);
+	/*printf("\nn=%d",n);
 	for(i=1;i<=na;i++){
 		printf("\n%d : %d-%d --> %lf",i,ARETE[2*i-1],ARETE[2*i-2],LONGUEUR[i-1]);
 	}
@@ -852,7 +837,7 @@ int lectureNewick(const char* fichier, long int* ARETE, double* LONGUEUR, char**
 
 	printf("\nn=%d", n);
 	for (i = 1; i <= na; i++) {
-		printf("\n%d : %d-%d --> %lf", i, ARETE[2 * i - 1], ARETE[2 * i - 2], LONGUEUR[i - 1]);
+		printf("\n%d : %ld-%ld --> %lf", i, ARETE[2 * i - 1], ARETE[2 * i - 2], LONGUEUR[i - 1]);
 	}
 
 
@@ -883,7 +868,7 @@ int lectureNewick_(char* fichier, long int* ARETE, double* LONGUEUR, char** lesN
 	// Elmaestro
 
 	// TODO: Add your command handler code here
-	int FAIL = -1;
+	//int FAIL = -1;
 	int i, j, j1, k, NewickValid = 1, a, a1, a2, a3, VertexNumber, numero;
 	char symbol, * string, * string1, * string2/* *string3,c ,**Et*/;
 	int taxaPos; // le nombre de taxas recupéré
@@ -1226,7 +1211,7 @@ int readNextTree(int newickFormat, const char* infile, const char* outfile, int 
 	}
 }
 
-void TrierMatrices(double** DISS, char** NomsDISS, char** NomsADD, int n)
+void TrierMatrices_rf(double** DISS, char** NomsDISS, char** NomsADD, int n)
 {
 	int ligne, colonne, i, j;
 	double** DISS_;
@@ -1280,7 +1265,8 @@ void TrierMatrices(double** DISS, char** NomsDISS, char** NomsADD, int n)
 		free(NomsDISS_[i]);
 	}
 
-	free(DISS_); free(NomsDISS_);
+	free(DISS_);
+	free(NomsDISS_);
 }
 
 void CopieMatriceDouble(double** source, double** destination, int taille)
@@ -1361,7 +1347,7 @@ void EcrireMatrice(FILE* outmat, double** DISS, char** NOMS, int n) {
 /* Main function */
 
 //= format : rf.exe inputfile outputfile tmp matrixfile
-int main(int argc, char** argv)
+int main_rf(int argc, char** argv)
 {
 	a = 0;
 	//= 1 : input.txt
@@ -1539,7 +1525,7 @@ int main(int argc, char** argv)
 							printf("%lf ",DISScopy[i][j]);
 					}
 			*/
-			filtrerMatrice(DISScopy, DISS_, NOMScopy, NOMS_, n, n_);
+			filtrerMatrice_rf(DISScopy, DISS_, NOMScopy, NOMS_, n, n_);
 
 			/*		printf("\n\nMatrice initiale apres filtre");
 					for(i=1;i<=n;i++){
@@ -1565,7 +1551,7 @@ int main(int argc, char** argv)
 							printf("%lf ",DISS_opt[i][j]);
 					}
 				*/
-			TrierMatrices(DISS_opt, NOMS_opt, NOMSopt, finalTaille);
+			TrierMatrices_rf(DISS_opt, NOMS_opt, NOMSopt, finalTaille);
 			/*
 			printf("\n\nMatrice lu apres tri");
 				for(i=1;i<=finalTaille;i++){
@@ -1585,11 +1571,11 @@ int main(int argc, char** argv)
 				B[i][j] = 0;
 			}
 
-			m = Bipartition_Table(DISSopt, B, PLACE1, finalTaille);
-			m1 = Bipartition_Table(DISS_opt, BI, PLACE2, finalTaille);
+			m = Bipartition_Table_rf(DISSopt, B, PLACE1, finalTaille);
+			m1 = Bipartition_Table_rf(DISS_opt, BI, PLACE2, finalTaille);
 			if (m1 == 0)
 				exit(1);
-			RF = Table_Comparaison(B, BI, PLACE1, PLACE2, m, m1, finalTaille);
+			RF = Table_Comparaison_rf(B, BI, PLACE1, PLACE2, m, m1, finalTaille);
 
 			fprintf(output, "\nRF Distance between Tree %d and Tree %d = %d", k, ii, RF);
 			//printf("\nRF Distance between tree %d and tree %d = %d",k,ii,RF);
@@ -1635,7 +1621,7 @@ int main(int argc, char** argv)
 
 /* Computing a circular order X of n objects of the distance matrix D starting from the objects i1 and i2 */
 
-void odp(double** D, int* X, int* i1, int* j1, int n)
+void odp_rf(double** D, int* X, int* i1, int* j1, int n)
 {
 	double S1, S;
 	int i, j, k, a, * Y1;
@@ -1677,7 +1663,7 @@ void odp(double** D, int* X, int* i1, int* j1, int n)
 /* Computation of an ordered bipartition table B(2n-3,n) and its rank list PLACE(2n-3)
   for the tree associated with an additive distance matrix D */
 
-int Bipartition_Table(double** D, int** B, int* PLACE, int n)
+int Bipartition_Table_rf(double** D, int** B, int* PLACE, int n)
 {
 
 	int i, j, k, l, l1, * MaxCol, * X, EdgeNumberPath, m, uv, PlaceNumber, edge, * Path, M, F;
@@ -1694,7 +1680,9 @@ int Bipartition_Table(double** D, int** B, int* PLACE, int n)
 
 	/* Computation of a circular order X for D */
 
-	i = 1; j = n; odp(D, X, &i, &j, n);
+	i = 1;
+	j = n;
+	odp_rf(D, X, &i, &j, n);
 
 	/* Initialization */
 	for (i = 1; i <= 2 * n - 3; i++)
@@ -1704,8 +1692,14 @@ int Bipartition_Table(double** D, int** B, int* PLACE, int n)
 		for (j = 1; j <= n; j++)
 			B[i][j] = 0;
 	}
-	B[1][X[2]] = 1; MaxCol[1] = X[2]; Path[1] = 1; PlaceNumber = 1;
-	PLACE[1] = 1; LengthPath[1] = D[X[1]][X[2]]; EdgeNumberPath = 1; m = 1;
+	B[1][X[2]] = 1;
+	MaxCol[1] = X[2];
+	Path[1] = 1;
+	PlaceNumber = 1;
+	PLACE[1] = 1;
+	LengthPath[1] = D[X[1]][X[2]];
+	EdgeNumberPath = 1;
+	m = 1;
 
 
 	/* The main loop */
@@ -1718,14 +1712,24 @@ int Bipartition_Table(double** D, int** B, int* PLACE, int n)
 
 		if ((DIS <= -EPS1) || (DIS1 <= -EPS1)) {
 			printf("\n This is not an additive distance \n");
-			free(MaxCol); free(X); free(LengthPath); free(Path); return 0;
+			free(MaxCol);
+			free(X);
+			free(LengthPath);
+			free(Path);
+			return 0;
 		}
-		if (DIS <= EPS) DIS = 0.0; if (DIS1 <= EPS) DIS1 = 0.0;
+		if (DIS <= EPS) { DIS = 0.0; }
+		if (DIS1 <= EPS) { DIS1 = 0.0; }
 
-		S = 0.0; i = EdgeNumberPath; if (LengthPath[i] == 0.0) i--;
+		S = 0.0;
+		i = EdgeNumberPath;
+		if (LengthPath[i] == 0.0) { i--; }
 		while (S <= DIS - EPS)
 		{
-			if (i == 0) { S = DIS; break; }  /* checking the limit */
+			if (i == 0) {
+				S = DIS;
+				break;
+			}  /* checking the limit */
 			S = S + LengthPath[i];
 			i--;
 		}
@@ -1734,77 +1738,101 @@ int Bipartition_Table(double** D, int** B, int* PLACE, int n)
 
 		if (fabs(S - DIS) <= EPS)
 		{
-			M = m + 2; DIS = S;
+			M = m + 2;
+			DIS = S;
 			if (i == 0) F = 1;
 			else if (i == EdgeNumberPath) F = 2;
-			else { M--; F = 3; }
+			else {
+				M--;
+				F = 3;
+			}
 		}
-		else { M = m + 2; F = 0; }
+		else {
+			M = m + 2;
+			F = 0;
+		}
 
 
 		if (M == m + 2)
 		{
 			if (F == 0) {
-				uv = Path[i + 1]; EdgeNumberPath = i + 2; LengthPath[i + 1] = S - DIS; LengthPath[i + 2] = DIS1;
-				Path[i + 1] = m + 2; Path[i + 2] = m + 1;
+				uv = Path[i + 1];
+				EdgeNumberPath = i + 2;
+				LengthPath[i + 1] = S - DIS;
+				LengthPath[i + 2] = DIS1;
+				Path[i + 1] = m + 2;
+				Path[i + 2] = m + 1;
 			}
 			else if (F == 1) {
-				uv = Path[1]; EdgeNumberPath = 2; LengthPath[1] = 0.0; LengthPath[2] = DIS1;
-				Path[1] = m + 2; Path[2] = m + 1;
+				uv = Path[1];
+				EdgeNumberPath = 2;
+				LengthPath[1] = 0.0;
+				LengthPath[2] = DIS1;
+				Path[1] = m + 2;
+				Path[2] = m + 1;
 			}
 			else if (F == 2) {
-				uv = Path[EdgeNumberPath]; EdgeNumberPath = EdgeNumberPath + 1; LengthPath[EdgeNumberPath] = DIS1;
-				Path[EdgeNumberPath - 1] = m + 2; Path[EdgeNumberPath] = m + 1;
+				uv = Path[EdgeNumberPath];
+				EdgeNumberPath = EdgeNumberPath + 1;
+				LengthPath[EdgeNumberPath] = DIS1;
+				Path[EdgeNumberPath - 1] = m + 2;
+				Path[EdgeNumberPath] = m + 1;
 			}
 
 			for (j = 1; j <= n; j++)
-				B[m + 2][j] = B[uv][j];
+			{	B[m + 2][j] = B[uv][j];	}
 			MaxCol[m + 2] = MaxCol[uv];
 		}
 
 		else
 		{
-			EdgeNumberPath = i + 1; LengthPath[i + 1] = DIS1; Path[i + 1] = m + 1;
+			EdgeNumberPath = i + 1;
+			LengthPath[i + 1] = DIS1;
+			Path[i + 1] = m + 1;
 		}
 
 		/* Point 2.3 of the algorithm */
 
 		for (j = 1; j <= EdgeNumberPath; j++)
-			B[Path[j]][X[k + 1]] = 1;
+			{ B[Path[j]][X[k + 1]] = 1; }
 
 		/* Point 2.4 of the algorithm */
 
 		for (j = 1; j <= EdgeNumberPath; j++)
-			if (MaxCol[Path[j]] < X[k + 1]) MaxCol[Path[j]] = X[k + 1];
+			if (MaxCol[Path[j]] < X[k + 1]) { MaxCol[Path[j]] = X[k + 1]; }
 
 		/* Point 2.5 of the algorithm */
 
 		for (j = PlaceNumber; j >= 1; j--)
-			PLACE[j + 1] = PLACE[j];
+			{ PLACE[j + 1] = PLACE[j]; }
 		PLACE[1] = m + 1; PlaceNumber++;
 
-		if (M == m + 2) {
+		if (M == m + 2)
+		{
 			i = 2;
 			while (PLACE[i] != uv)
-				i++;
+				{ i++; }
 			for (j = PlaceNumber; j >= i + 1; j--)
-				PLACE[j + 1] = PLACE[j];
-			PLACE[i + 1] = m + 2; PlaceNumber++;
+				{ PLACE[j + 1] = PLACE[j]; }
+			PLACE[i + 1] = m + 2;
+			PlaceNumber++;
 		}
 
-		i = M - 1; edge = 2;
+		i = M - 1;
+		edge = 2;
 		do
 		{
 			if (PLACE[i] == Path[edge])
 			{
-				edge++; j = i + 1;
+				edge++;
+				j = i + 1;
 				while (X[k + 1] > MaxCol[PLACE[j]])
-					j++;
+					{ j++; }
 				if (j > i + 1)
 				{
 					l1 = PLACE[i];
 					for (l = i + 1; l <= j - 1; l++)
-						PLACE[l - 1] = PLACE[l];
+						{ PLACE[l - 1] = PLACE[l]; }
 					PLACE[j - 1] = l1;
 
 				}
@@ -1830,18 +1858,23 @@ int Bipartition_Table(double** D, int** B, int* PLACE, int n)
    and its rank lists PLACE(2n-3) and  PLACE1(2n-3) */
 
 
-int Table_Comparaison(int** B, int** B1, int* PLACE, int* PLACE1, int m, int m1, int n)
+int Table_Comparaison_rf(int** B, int** B1, int* PLACE, int* PLACE1, int m, int m1, int n)
 {
 	int RF = 0, i, p, p1;
 
-	p = 1; p1 = 1;
+	p = 1;
+	p1 = 1;
 
 	while ((p <= m) && (p1 <= m1))
 	{
 		i = n;
 		while ((B[PLACE[p]][i] == B1[PLACE1[p1]][i]) && (i > 1))
 			i--;
-		if (i == 1) { RF = RF + 1; p++; p1++; }
+		if (i == 1) {
+			RF = RF + 1;
+			p++;
+			p1++;
+		}
 		else if (B[PLACE[p]][i] > B1[PLACE1[p1]][i]) p1++;
 		else p++;
 
